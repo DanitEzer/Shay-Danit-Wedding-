@@ -26,9 +26,9 @@ nav.scrolled{background:rgba(10,10,10,0.96);backdrop-filter:blur(10px);border-bo
 .hero-grain{position:absolute;inset:-50%;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");animation:grain 0.5s steps(2) infinite;opacity:0.3;z-index:1;pointer-events:none}
 @keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-2%,3%)}50%{transform:translate(3%,-2%)}75%{transform:translate(-1%,4%)}100%{transform:translate(2%,-3%)}}
 .hero-video-note{position:absolute;bottom:30%;left:50%;transform:translateX(-50%);z-index:2;font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.4em;color:rgba(255,255,255,0.07);text-transform:uppercase;white-space:nowrap}
-.hero-content{position:relative;z-index:3;text-align:center;padding:5rem 2rem 2rem}
+.hero-content{position:relative;z-index:3;text-align:center;padding:2rem}
 .hero-pre{font-family:'Barlow Condensed',sans-serif;font-size:clamp(0.7rem,1.5vw,0.9rem);letter-spacing:0.4em;color:var(--yellow);text-transform:uppercase;margin-bottom:1.5rem;opacity:0;animation:fadeIn 0.8s 0.3s ease forwards;white-space:nowrap}
-.hero-logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(5rem,20vw,17rem);line-height:0.82;color:var(--white);letter-spacing:-0.02em;opacity:0;animation:fadeIn 0.8s 0.5s ease forwards}
+.hero-logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,15vw,12rem);line-height:0.85;color:var(--white);letter-spacing:-0.02em;opacity:0;animation:fadeIn 0.8s 0.5s ease forwards}
 .hero-logo span{color:var(--yellow)}
 .hero-sub{font-family:'Barlow Condensed',sans-serif;font-size:clamp(0.9rem,2.5vw,1.6rem);font-weight:700;letter-spacing:0.35em;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:0.8rem;opacity:0;animation:fadeIn 0.8s 0.7s ease forwards}
 .hero-date{font-family:'Barlow Condensed',sans-serif;font-size:clamp(0.7rem,1.8vw,1rem);letter-spacing:0.4em;color:var(--gray);text-transform:uppercase;margin-top:2rem;opacity:0;animation:fadeIn 0.8s 0.9s ease forwards}
@@ -141,12 +141,12 @@ section{padding:6rem 2rem}
 .rsvp-success h3{font-family:'Bebas Neue',sans-serif;font-size:3rem;color:var(--yellow);margin-bottom:0.5rem}
 .rsvp-success p{font-family:'Barlow',sans-serif;font-size:0.9rem;color:var(--gray)}
 .sponsors{background:var(--black);border-top:1px solid #141414;padding:3rem 2rem}
-.sponsors-label{font-family:'Barlow Condensed',sans-serif;font-size:0.58rem;letter-spacing:0.45em;color:#555;text-transform:uppercase;text-align:center;margin-bottom:2rem}
+.sponsors-label{font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.45em;color:#666;text-transform:uppercase;text-align:center;margin-bottom:2rem}
 .sponsors-row{display:flex;flex-wrap:wrap;gap:0;border:1px solid #141414;max-width:1100px;margin:0 auto}
-.sponsor-item{flex:1;min-width:200px;padding:1.5rem;border-left:1px solid #141414;text-align:center}
+.sponsor-item{flex:1;min-width:200px;padding:2.5rem 1.5rem;border-left:1px solid #222;text-align:center}
 .sponsor-item:first-child{border-left:none}
-.s-role{font-family:'Barlow Condensed',sans-serif;font-size:0.52rem;letter-spacing:0.25em;color:#666;text-transform:uppercase;margin-bottom:0.4rem;display:block}
-.s-name{font-family:'Barlow Condensed',sans-serif;font-size:0.88rem;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.08em}
+.s-role{font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;letter-spacing:0.25em;color:var(--yellow);text-transform:uppercase;margin-bottom:0.6rem;display:block}
+.s-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,2.5vw,2rem);color:var(--white);text-transform:uppercase;letter-spacing:0.05em}
 footer{background:var(--black);border-top:1px solid #141414;padding:1.8rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
 .footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--white);letter-spacing:0.05em}
 .footer-logo span{color:var(--yellow)}
@@ -158,6 +158,30 @@ footer{background:var(--black);border-top:1px solid #141414;padding:1.8rem 2rem;
 .day-heading{display:flex;align-items:baseline;gap:1.5rem;padding:2rem 0 1rem;border-bottom:2px solid var(--yellow);margin-bottom:0.5rem}
 .day-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,7vw,5rem);color:var(--yellow);line-height:1}
 .day-info{font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;letter-spacing:0.3em;color:var(--gray);text-transform:uppercase}
+
+.cal-float{
+  position:fixed;
+  bottom:2rem;
+  left:2rem;
+  z-index:999;
+  display:flex;
+  align-items:center;
+  gap:0.6rem;
+  padding:0.8rem 1.4rem;
+  background:var(--yellow);
+  color:var(--black);
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.72rem;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  text-decoration:none;
+  border:none;
+  cursor:pointer;
+  transition:background 0.2s, transform 0.2s;
+  box-shadow:0 4px 20px rgba(212,240,0,0.25);
+}
+.cal-float:hover{background:#c8e800;transform:translateY(-2px)}
+.cal-float-icon{font-size:1rem}
 @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 .reveal{opacity:0;transform:translateY(16px);transition:opacity 0.7s ease,transform 0.7s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
@@ -191,10 +215,10 @@ footer{background:var(--black);border-top:1px solid #141414;padding:1.8rem 2rem;
   <div class="hero-grain"></div>
   <p class="hero-video-note">highlights video — coming soon</p>
   <div class="hero-content">
-    <p class="hero-pre">Wedding Festival &nbsp;·&nbsp; Galilee, Israel</p>
     <h1 class="hero-logo">S<span>&</span>D<br>FEST</h1>
+    <p class="hero-pre">Wedding Festival &nbsp;·&nbsp; Galilee, Israel</p>
     <p class="hero-sub">Shay & Danit — Est. 2026</p>
-    <p class="hero-date"><span>19–20 June 2026</span> &nbsp;·&nbsp; Fri–Sat &nbsp;·&nbsp; הבוסתן הנעלם</p>
+    <p class="hero-date"><span>19–20 June 2026</span> &nbsp;·&nbsp; Fri–Sat 19–20 &nbsp;·&nbsp; הבוסתן הנעלם</p>
     <div class="hero-countdown" style="direction:ltr">
       <div class="cd"><span class="cd-n" id="cd-d">--</span><span class="cd-l">Days</span></div>
       <div class="cd"><span class="cd-n" id="cd-h">--</span><span class="cd-l">Hours</span></div>
@@ -431,5 +455,6 @@ function submitRSVP(){
   document.getElementById('rsvp-success').style.display='block';
 }
 </script>
+<a class="cal-float" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=S%26D+FEST+%E2%80%94+%D7%97%D7%AA%D7%95%D7%A0%D7%AA+%D7%A9%D7%99+%D7%95%D7%93%D7%A0%D7%99%D7%AA&dates=20260619T143000/20260620T235900&details=%D7%97%D7%AA%D7%95%D7%A0%D7%AA+%D7%A4%D7%A1%D7%98%D7%99%D7%91%D7%9C+%E2%80%94+%D7%94%D7%91%D7%95%D7%A1%D7%AA%D7%9F+%D7%94%D7%A0%D7%A2%D7%9C%D7%9D&location=%D7%94%D7%91%D7%95%D7%A1%D7%AA%D7%9F+%D7%94%D7%A0%D7%A2%D7%9C%D7%9D%2C+%D7%92%D7%9C%D7%99%D7%9C+%D7%AA%D7%97%D7%AA%D7%95%D7%9F" target="_blank"><span class="cal-float-icon">📅</span> Add to Calendar</a>
 </body>
 </html>
