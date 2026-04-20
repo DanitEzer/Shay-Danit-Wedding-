@@ -131,8 +131,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:900;background:var(--brown);disp
   position:relative;
   width:130px;height:130px;
 }
-.disco-ball{animation:discospin 4s linear infinite}
-@keyframes discospin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.disco-ball{animation:discospin 4s linear infinite;transform-origin:center center;transform-style:preserve-3d}
+@keyframes discospin{from{transform:rotateY(0deg)}to{transform:rotateY(360deg)}}
 
 /* countdown */
 .hero-countdown{
@@ -517,6 +517,7 @@ footer{background:var(--brown);border-top:4px solid var(--orange);padding:1.8rem
         <text x="50" y="125" font-size="9" fill="#5B9E8E" opacity="0.7">✦</text>
       </svg>
     </div>
+    <p style="font-family:'Righteous',cursive;font-size:1.1rem;color:var(--orange);letter-spacing:0.12em;margin-top:0.3rem;text-shadow:1px 1px 0 var(--brown);opacity:0;animation:fadeUp 0.8s 1.15s ease forwards">Dancing Queen(s)</p>
 
     <div class="hero-countdown">
       <div class="cd"><span class="cd-n" id="cd-d">--</span><span class="cd-l">Days</span></div>
