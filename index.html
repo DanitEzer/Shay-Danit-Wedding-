@@ -351,7 +351,7 @@ footer{background:var(--brown);border-top:4px solid var(--orange);padding:1.8rem
     <li><a href="#lineup">Lineup</a></li>
     <li><a href="#location">Location</a></li>
     <li><a href="#faq">FAQ</a></li>
-    <li><a href="#artists">Artists</a></li>
+    
   </ul>
   
 </nav>
@@ -639,27 +639,6 @@ footer{background:var(--brown);border-top:4px solid var(--orange);padding:1.8rem
 </section>
 
 <div class="divider"></div>
-
-<!-- ARTISTS -->
-<section class="artists-section" id="artists">
-  <div class="container-sm">
-    <span class="kicker reveal">☮ Artists Area</span>
-    <h2 class="heading reveal">Artists<br><span>Only</span></h2>
-    <div class="artists-gate reveal">
-      <div class="warn">⚠ Restricted Access</div>
-      <h2>כניסה לאמנים בלבד</h2>
-      <p>אם הגעתם לפה בטעות — כנראה שאתם לא אמנים.<br>גיא מרגלית — הכניסה מהצד.<br>אביב אלתר — הסקסופון נכנס ראשון.<br>שאר האמנים (כלומר כולנו ליד המדורה) — תביאו כלים.</p>
-      <div class="artist-login">
-        <input type="password" placeholder="Artist Password">
-        <button onclick="alert('הסיסמה היא: תנגן')">Login</button>
-      </div>
-      <p class="artist-note">שכחתם סיסמה? שאלו את גיא.</p>
-    </div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
 <!-- SITEMAP -->
 <section class="sitemap-section">
   <div class="container">
@@ -694,12 +673,40 @@ footer{background:var(--brown);border-top:4px solid var(--orange);padding:1.8rem
 </section>
 
 <div class="divider"></div>
+
+<div class="divider"></div>
+
+<section style="background:var(--brown);padding:5rem 2rem" id="playlists">
+  <div class="container-sm">
+    <span class="kicker reveal" style="color:var(--yellow)">☮ Playlists</span>
+    <h2 class="heading reveal" style="color:var(--cream)">הפסטיבל<br><span style="color:var(--yellow)">בשיר</span></h2>
+    <div style="display:flex;flex-direction:column;gap:1.5rem;margin-top:2rem">
+      
+      <div class="reveal">
+        <p style="font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;letter-spacing:0.3em;color:var(--yellow);text-transform:uppercase;margin-bottom:0.8rem">🏊 Wedding Pool Party</p>
+        <iframe style="border-radius:8px;border:2px solid var(--orange)" src="https://open.spotify.com/embed/playlist/15pG1VYGZYJTSnZdTpWLwn?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      </div>
+
+      <div class="reveal">
+        <p style="font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;letter-spacing:0.3em;color:var(--yellow);text-transform:uppercase;margin-bottom:0.8rem">🎵 שירים שאתם ממליצים / חייבים</p>
+        <iframe style="border-radius:8px;border:2px solid var(--orange)" src="https://open.spotify.com/embed/playlist/5wEeSQwRsuqzN4b0sDcM97?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      </div>
+
+      <div class="reveal">
+        <p style="font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;letter-spacing:0.3em;color:var(--yellow);text-transform:uppercase;margin-bottom:0.8rem">🎸 שירים לג׳אם</p>
+        <iframe style="border-radius:8px;border:2px solid var(--orange)" src="https://open.spotify.com/embed/playlist/7l0EDNnJZchXrzsNPYG9ZP?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- CHAT -->
 <section class="chat-section" id="chat">
   <div class="container-sm">
     <span class="kicker reveal">☮ Wall of Love</span>
     <h2 class="heading reveal">Drop A<br><span>Line</span></h2>
-    <p class="body-text reveal">רק שטויות.</p>
+    <p class="body-text reveal">שאלות, בקשות, רצונות, משאלות פיות.</p>
     <div class="chat-box reveal">
       <div class="chat-feed" id="chat-feed"></div>
       <div class="chat-input-wrap">
