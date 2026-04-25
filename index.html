@@ -190,8 +190,8 @@ section{padding:5rem 2rem}
 .lineup-section .heading span{color:var(--yellow)}
 .poster{border:4px solid var(--orange);padding:3rem 2rem;text-align:center;margin-top:3rem;position:relative;background:rgba(232,168,32,0.06);border-radius:8px}
 .poster::before{content:'';position:absolute;top:8px;left:8px;right:8px;bottom:8px;border:1px dashed rgba(232,168,32,0.3);pointer-events:none;border-radius:4px}
-.poster-headliner{font-family:'Righteous',cursive;font-size:clamp(2.5rem,7vw,5rem);color:var(--yellow);line-height:1;text-shadow:3px 3px 0 var(--orange2);margin-bottom:0.5rem}
-.poster-feat{font-family:'Barlow Condensed',sans-serif;font-size:clamp(0.9rem,2vw,1.3rem);font-weight:700;color:var(--cream);letter-spacing:0.18em;text-transform:uppercase}
+.poster-headliner{font-family:'Righteous',cursive;font-size:clamp(2rem,4vw,3rem);color:var(--yellow);line-height:1;text-shadow:2px 2px 0 var(--orange2);margin-bottom:0.5rem}
+.poster-feat{font-family:'Barlow Condensed',sans-serif;font-size:clamp(0.9rem,2vw,1.1rem);font-weight:700;color:var(--cream);letter-spacing:0.18em;text-transform:uppercase}
 .poster-div{display:flex;align-items:center;gap:1rem;margin:1.2rem 0}
 .poster-div::before,.poster-div::after{content:'';flex:1;height:2px;background:linear-gradient(to right,transparent,var(--orange),transparent)}
 .poster-div span{color:var(--yellow);font-size:1rem}
@@ -587,7 +587,7 @@ footer{background:var(--brown);border-top:4px solid var(--orange);padding:1.8rem
     <span class="kicker reveal">☮ Festival Info</span>
     <h2 class="heading reveal">Need To<br><span>Know</span></h2>
     <div class="bento">
-      <div class="bento-cell yc reveal"><span class="b-label">Dress Code</span><div class="b-title">נוח. יפה. שלכם.</div><div class="b-desc">שטח. ריקודים. לילה ארוך. נעליים בהתאם.</div><span class="b-arrow">↗</span></div>
+      <div class="bento-cell reveal"><span class="b-label">Dress Code</span><div class="b-title">נוח. יפה. שלכם.</div><div class="b-desc">שטח. ריקודים. לילה ארוך. נעליים בהתאם.</div><span class="b-arrow">↗</span></div>
       <div class="bento-cell reveal d1"><span class="b-label">Instruments</span><div class="b-title">תביאו כלים</div><div class="b-desc">גיטרה, ג׳מבה, כינור, חליל — ג׳אם פתוח לכולם.</div><span class="b-arrow">↗</span></div>
       <div class="bento-cell reveal d2"><span class="b-label">Weather</span><div class="b-title">29° / 17°</div><div class="b-desc">חם ביום. נעים בלילה. ג׳קט = חובה.</div><span class="b-arrow">↗</span></div>
       <div class="bento-cell wide reveal"><span class="b-label">The Short Version</span><div class="b-title">שותות. אוכלות. מתחתנות. רוקדות. מנגנות. גחנון. בריכה.</div><div class="b-desc"></div><span class="b-arrow">↓ FAQ</span></div>
@@ -604,12 +604,13 @@ footer{background:var(--brown);border-top:4px solid var(--orange);padding:1.8rem
     <span class="kicker reveal">☮ FAQ</span>
     <h2 class="heading reveal">Got<br><span>Questions?</span></h2>
     <div class="faq-list reveal">
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>האם חייבים לרקוד?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">כן. זו לא בקשה. <em>זו חתונה.</em></div></div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>מה הדרס קוד?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">בוהו נוח. <em>לא חליפות.</em> לא עקבים בשטח. כן לנעליים שנוח לרקוד בהן עד 4 בבוקר.</div></div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>יהיה Wi-Fi?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">כן. הסיסמה: <em>"תנו לנו לרקוד"</em>. בלי רווחים.</div></div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>מה אם לא יודע לנגן?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">תביא את הגוף שלך. <em>הג׳אם מקבל את כולם.</em></div></div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>האם חייבים להישאר לשבת?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">לא חייבים. אבל <em>מי שנשאר — מבין.</em></div></div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>מה אם נגמר לי האלכוהול?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in"><em>זה לא יקרה.</em> אבל אם כן — תרקדי, זה עוזר.</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>איפה אפשר לישון?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">יש מתחם שינה ברחבת דשא גדולה — אנחנו מספקות מאהל גדול ומזרונים, אתם מביאים כרית, מצעים וסמיכה. אפשר גם להקים אוהל פרטי, ואפשר גם פשוט לישון תחת כיפת השמיים 🌟</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>האם יש הסעות?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">לא, אין הסעות מאורגנות — מכיוון שחלק נשארים לישון וחלק לא, זה לא מסתדר לוגיסטית. מומלץ לאגד נסיעות עם חברים 🚗</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>מה הדרס קוד?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">בוהו, נוח, יפה — שלכם. המקום הוא שטח פתוח, הערב מתארך, ובלילה יכול להיות קריר. נעליים שנוח לרקוד בהן, ג׳קט לשעות הלילה — חובה 🧥</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>מה מביאים לג׳אם המדורה?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">כל כלי נגינה שבא לכם — גיטרה, ג׳מבה, כינור, חליל, מה שיש. יש הרבה מוזיקאים שיגיעו עם כלים, אז מי שרוצה להצטרף — מוזמן 🎸</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>מה עם הבריכה?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">תהיה בריכה! סביר להניח שתהיה טבילה לילית, ובבוקר שבת הבריכה פתוחה לכולם. שימו עין על הילדים שלכם ליד הבריכה 🏊</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>המקום גדול — איפה יושבים?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">המקום מרווח ויש אפשרויות לכולם — ליד הרחבה למי שרוצה להיות בלב העניינים, רחוק ממנה למי שמעדיף שקט, ובדשא למי שרוצה לשחק, לנוח, לנשום אוויר או פשוט לעשות פיטריות בין מטעי הזיתים 🌿</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>יש מקלחות וחשמל למטענים?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">יש 3 מקלחות עם מים חמים לאורך כל הערב — נא לשמור על ניקיון בתום השימוש. נקודות הטענה יהיו מסומנות במקום 🔌</div></div></div>
     </div>
   </div>
 </section>
@@ -716,8 +717,7 @@ footer{background:var(--brown);border-top:4px solid var(--orange);padding:1.8rem
 <div class="sponsors">
   <p class="sponsors-label">☮ &nbsp; Official Sponsors &nbsp; ☮</p>
   <div class="sponsors-row">
-    <div class="sponsor-item"><span class="s-role">Presented By</span><div class="s-name">אלון ואסתי אייזנר</div></div>
-    <div class="sponsor-item"><span class="s-role">Co-Presented By</span><div class="s-name">חיים ונירית עזר</div></div>
+    <div class="sponsor-item" style="flex:2"><span class="s-role">Presented By</span><div class="s-name">אלון ואסתי אייזנר & חיים ונירית עזר</div></div>
     <div class="sponsor-item"><span class="s-role">VIP Experience</span><div class="s-name">אתם האורחים</div></div>
     <div class="sponsor-item"><span class="s-role">Definitely Not Sponsoring</span><div class="s-name">בטוח לא אנחנו</div></div>
   </div>
