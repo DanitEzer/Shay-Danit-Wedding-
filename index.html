@@ -8,7 +8,7 @@
 <meta name="description" content="Shay & Danit Wedding Fest — 19–20.06.2026 — הבוסתן הנעלם">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Boogaloo&family=Barlow+Condensed:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Boogaloo&family=Rubik:wght@300;400;700;900&family=Barlow+Condensed:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -178,7 +178,7 @@ section{padding:5rem 2rem}
 .tl-row{display:grid;grid-template-columns:90px 1fr;gap:2rem;padding:1.4rem 0;border-bottom:2px dashed rgba(61,31,8,0.15);align-items:start}
 .tl-row:last-child{border-bottom:none}
 .tl-time{font-family:'Righteous',cursive;font-size:1.5rem;color:var(--orange);line-height:1;direction:ltr;text-align:left}
-.tl-title{font-family:'Boogaloo',cursive;font-size:1.2rem;color:var(--brown);margin-bottom:0.2rem;letter-spacing:0.02em}
+.tl-title{font-family:'Rubik',sans-serif;font-weight:700;font-size:1.2rem;color:var(--brown);margin-bottom:0.2rem;letter-spacing:0.02em}
 .tl-desc{font-family:'Boogaloo',cursive;font-size:0.85rem;color:var(--brown2);line-height:1.6}
 .tl-badge{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;letter-spacing:0.15em;padding:2px 10px;border:2px solid var(--brown2);color:var(--brown2);text-transform:uppercase;margin-top:0.4rem;border-radius:20px}
 .tl-badge.hot{border-color:var(--orange);color:var(--orange);background:rgba(212,88,26,0.08)}
@@ -218,11 +218,11 @@ section{padding:5rem 2rem}
 .faq-section{background:var(--cream2)}
 .faq-list{margin-top:2rem}
 .faq-item{border-bottom:2px dashed rgba(61,31,8,0.2)}
-.faq-q{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 0;cursor:pointer;font-family:'Boogaloo',cursive;font-size:1.2rem;color:var(--brown);transition:color 0.2s}
+.faq-q{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 0;cursor:pointer;font-family:'Rubik',sans-serif;font-weight:600;font-size:1.2rem;color:var(--brown);transition:color 0.2s}
 .faq-q:hover{color:var(--orange)}
 .faq-q .arr{font-size:1.2rem;color:var(--orange);transition:transform 0.3s;flex-shrink:0;margin-right:1rem}
 .faq-item.open .faq-q .arr{transform:rotate(45deg)}
-.faq-a{max-height:0;overflow:hidden;transition:max-height 0.4s ease;font-family:'Boogaloo',cursive;font-size:0.9rem;color:var(--brown2);line-height:1.8}
+.faq-a{max-height:0;overflow:hidden;transition:max-height 0.4s ease;font-family:'Rubik',sans-serif;font-size:0.9rem;color:var(--brown2);line-height:1.8}
 .faq-item.open .faq-a{max-height:200px}
 .faq-a-in{padding:0 0 1.2rem}
 .faq-a-in em{color:var(--orange);font-style:normal}
@@ -237,8 +237,8 @@ section{padding:5rem 2rem}
 .map-wrap iframe{width:100%;height:100%;border:none;filter:sepia(40%) saturate(1.3) hue-rotate(-10deg)}
 .location-info{background:var(--brown);padding:2.5rem;display:flex;flex-direction:column;gap:1.4rem}
 .loc-item .lbl{font-family:'Barlow Condensed',sans-serif;font-size:0.58rem;letter-spacing:0.3em;color:var(--yellow);text-transform:uppercase;margin-bottom:0.3rem}
-.loc-item .val{font-family:'Boogaloo',cursive;font-size:1.25rem;color:var(--cream);letter-spacing:0.03em}
-.loc-item .val-sub{font-size:0.8rem;font-weight:300;color:rgba(242,232,213,0.45);margin-top:0.2rem;font-family:'Barlow',sans-serif}
+.loc-item .val{font-family:'Rubik',sans-serif;font-weight:600;font-size:1.25rem;color:var(--cream);letter-spacing:0.03em}
+.loc-item .val-sub{font-size:0.8rem;font-weight:300;color:rgba(242,232,213,0.45);margin-top:0.2rem;font-family:'Rubik',sans-serif}
 .nav-btns{display:flex;gap:0.7rem;flex-wrap:wrap}
 .nav-btn{font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.55rem 1.2rem;text-decoration:none;border:2px solid var(--orange);color:var(--cream);transition:all 0.2s;border-radius:20px}
 .nav-btn:hover{background:var(--orange)}
@@ -293,7 +293,7 @@ section{padding:5rem 2rem}
 .chat-feed::-webkit-scrollbar-thumb{background:var(--orange);border-radius:2px}
 .chat-bubble{display:flex;flex-direction:column;background:var(--cream2);border:2px solid var(--brown);padding:0.8rem 1rem;border-radius:6px;animation:bubbleIn 0.3s ease}
 @keyframes bubbleIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.chat-bubble-name{font-family:'Righteous',cursive;font-size:0.9rem;color:var(--orange);margin-bottom:0.3rem}
+.chat-bubble-name{font-family:'Rubik',sans-serif;font-weight:700;font-size:0.9rem;color:var(--orange);margin-bottom:0.3rem}
 .chat-bubble-msg{font-family:'Boogaloo',cursive;font-size:0.9rem;color:var(--brown);line-height:1.6}
 .chat-bubble-time{font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;letter-spacing:0.1em;color:var(--brown2);margin-top:0.4rem;direction:ltr;text-align:right;opacity:0.4}
 .chat-input-wrap{display:flex;flex-direction:column;border-top:3px solid var(--brown)}
@@ -312,7 +312,7 @@ section{padding:5rem 2rem}
 .sponsor-item{flex:1;min-width:200px;padding:2rem 1.5rem;border-left:1px solid rgba(212,88,26,0.2);text-align:center}
 .sponsor-item:first-child{border-left:none}
 .s-role{font-family:'Barlow Condensed',sans-serif;font-size:0.58rem;letter-spacing:0.25em;color:var(--yellow);text-transform:uppercase;margin-bottom:0.5rem;display:block}
-.s-name{font-family:'Boogaloo',cursive;font-size:clamp(1.1rem,2vw,1.5rem);color:var(--cream);letter-spacing:0.03em}
+.s-name{font-family:'Rubik',sans-serif;font-weight:600;font-size:clamp(1.1rem,2vw,1.5rem);color:var(--cream);letter-spacing:0.03em}
 
 /* FOOTER */
 footer{background:var(--brown);border-top:4px solid var(--orange);padding:1.8rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
@@ -602,12 +602,21 @@ footer{background:var(--brown);border-top:4px solid var(--orange);padding:1.8rem
 <div class="divider"></div>
 
 <!-- FAQ -->
-
-
-
-
-
-
+<section class="faq-section" id="faq">
+  <div class="container-sm">
+    <span class="kicker reveal">FAQ</span>
+    <h2 class="heading reveal">שאלות?</h2>
+    <div class="faq-list reveal">
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>איפה אפשר לישון?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">יש מתחם שינה ברחבת דשא גדולה — אנחנו מספקות מאהל גדול ומזרונים, אתם מביאים כרית, מצעים ושמיכה. אפשר גם להקים אוהל פרטי, ואפשר גם פשוט לישון תחת כיפת השמיים 🌟</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>מה הדרס קוד?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">בוהו, נוח, יפה — שלכם. המקום הוא שטח פתוח, הערב מתארך, ובלילה יכול להיות קריר. נעליים שנוח לרקוד בהן, ג׳קט לשעות הלילה — חובה 🧥</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>מה עם הבריכה?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">תהיה בריכה! סביר להניח שתהיה טבילה לילית, ובבוקר שבת הבריכה פתוחה לכולם. במהלך האירוע יהיה מישהו שישגיח על הבריכה — אבל בבקשה שמרו עין על הילדים שלכם 🏊</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>האם יש הסעות?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">לא, אין הסעות מאורגנות — מכיוון שחלק נשארים לישון וחלק לא, זה לא מסתדר לוגיסטית 🚗</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>מה מביאים לג׳אם המדורה?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">כל כלי נגינה שבא לכם — גיטרה, ג׳מבה, כינור, חליל, מה שיש. יש הרבה אנשים עם כלים שיגיעו, מי שרוצה להצטרף — מוזמן 🎸</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>המקום גדול — איפה יושבים?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">המקום מרווח ויש אפשרויות לכולם — ליד הרחבה למי שרוצה להיות בלב העניינים, רחוק ממנה למי שמעדיף שקט, ובדשא למי שרוצה לשחק, לנוח, לנשום אוויר או פשוט לעשות פיטריות בין מטעי הזיתים 🌿</div></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>יש מקלחות וחשמל למטענים?</span><span class="arr">+</span></div><div class="faq-a"><div class="faq-a-in">יש 3 מקלחות עם מים חמים לאורך כל הערב — נא לשמור על ניקיון בתום השימוש. נקודות הטענה יהיו מסומנות במקום 🔌</div></div></div>
+    </div>
+  </div>
+</section>
 <div class="divider"></div>
 
 <!-- INFO -->
