@@ -327,6 +327,81 @@ footer{background:var(--brown);border-top:4px solid var(--orange);padding:1.8rem
 .cal-float:hover{background:var(--orange2)}
 .cal-float-icon{font-size:0.9rem}
 
+
+/* HAMBURGER MENU */
+.hamburger-btn{
+  position:fixed;top:1rem;left:1rem;z-index:1000;
+  width:44px;height:44px;
+  background:var(--orange);border:2px solid var(--brown);
+  border-radius:8px;cursor:pointer;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;
+  transition:background 0.2s;
+}
+.hamburger-btn:hover{background:var(--orange2)}
+.hamburger-btn span{
+  display:block;width:22px;height:2px;
+  background:var(--cream);border-radius:2px;
+  transition:all 0.3s;
+}
+.hamburger-btn.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.hamburger-btn.open span:nth-child(2){opacity:0}
+.hamburger-btn.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+
+.hamburger-menu{
+  position:fixed;top:0;left:0;
+  width:280px;height:100vh;
+  background:var(--brown);
+  z-index:999;
+  padding:5rem 2rem 2rem;
+  transform:translateX(-100%);
+  transition:transform 0.3s ease;
+  border-right:3px solid var(--orange);
+  overflow-y:auto;
+}
+.hamburger-menu.open{transform:translateX(0)}
+
+.hamburger-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.5);
+  z-index:998;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.3s;
+}
+.hamburger-overlay.open{opacity:1;pointer-events:all}
+
+.menu-logo{
+  font-family:'Righteous',cursive;
+  font-size:1.3rem;color:var(--cream);
+  margin-bottom:2rem;
+  padding-bottom:1rem;
+  border-bottom:1px solid rgba(242,232,213,0.2);
+}
+.menu-logo span{color:var(--yellow)}
+
+.menu-links{list-style:none;display:flex;flex-direction:column;gap:0}
+.menu-links li a{
+  display:block;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:1rem;letter-spacing:0.2em;text-transform:uppercase;
+  color:rgba(242,232,213,0.7);text-decoration:none;
+  padding:0.9rem 0;
+  border-bottom:1px dashed rgba(242,232,213,0.1);
+  transition:color 0.2s;
+}
+.menu-links li a:hover{color:var(--yellow)}
+
+.menu-cal{
+  margin-top:2rem;
+  display:block;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;
+  padding:0.7rem 1.2rem;
+  background:var(--orange);color:var(--cream);
+  text-decoration:none;border:2px solid var(--brown);
+  border-radius:20px;text-align:center;
+  transition:background 0.2s;
+}
+.menu-cal:hover{background:var(--orange2)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .reveal{opacity:0;transform:translateY(16px);transition:opacity 0.7s ease,transform 0.7s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
@@ -579,14 +654,15 @@ footer{background:var(--brown);border-top:4px solid var(--orange);padding:1.8rem
         <div class="loc-item"><div class="lbl">Parking</div><div class="val">חניה במקום</div></div>
         <div class="loc-item">
   <div class="lbl">הוראות הגעה</div>
-  <div class="val-sub" style="color:rgba(242,232,213,0.7);line-height:1.8;font-size:0.85rem">
-    שימו <strong style="color:var(--yellow)">"עדי"</strong> בוויז וממשיכו כשני ק״מ עד הפניה שמאלה לבוסתן. יהיה שילוט אחרי עדי 🪧<br>
-    <span style="opacity:0.5;font-size:0.8rem">אם רוצים ניווט ישיר למיקום — אפשר, אבל לפעמים וויז שולח מהצד הפחות סימפטי 😅</span>
+  <div class="val" style="font-size:clamp(1rem,2.5vw,1.3rem);line-height:1.6;color:var(--cream)">
+    שימו <span style="color:var(--yellow);font-weight:700">"עדי"</span> בוויז וממשיכו כשני ק״מ עד הפניה שמאלה לבוסתן. יהיה שילוט אחרי עדי 🪧
+  </div>
+  <div class="val-sub" style="color:rgba(242,232,213,0.5);line-height:1.7;font-size:0.8rem;margin-top:0.5rem">
+    הגעתם לעדי? מכאן יש שתי אפשרויות — לעקוב אחרי השלטים שיהיו במקום, או להכניס את המיקום המדויק בגוגל מפס. פשוט אל תנווטו ישר מהבית 😊
   </div>
 </div>
 <div class="nav-btns">
-          <a class="nav-btn primary" href="https://waze.com/ul?q=%D7%A2%D7%93%D7%99&navigate=yes" target="_blank">🚗 Waze</a>
-          <a class="nav-btn" href="https://maps.app.goo.gl/dfhArZ8x4Zrpyd6d8" target="_blank">📍 Google Maps</a>
+          <a class="nav-btn primary" href="https://maps.app.goo.gl/dfhArZ8x4Zrpyd6d8" target="_blank">📍 Google Maps</a>
         </div>
       </div>
     </div>
@@ -752,6 +828,34 @@ async function loadMessages(){var feed=document.getElementById('chat-feed');if(!
 async function sendMessage(){var name=document.getElementById('chat-name').value.trim();var message=document.getElementById('chat-msg').value.trim();if(!name||!message){alert('נא למלא שם והודעה');return}var btn=document.querySelector('.chat-input-wrap button');btn.textContent='שולח...';btn.disabled=true;await sb.from('messages').insert([{name,message}]);document.getElementById('chat-name').value='';document.getElementById('chat-msg').value='';btn.textContent='שלח';btn.disabled=false}
 sb.channel('messages').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},function(payload){var feed=document.getElementById('chat-feed');if(!feed)return;var empty=feed.querySelector('.chat-empty');if(empty)empty.remove();feed.innerHTML+=renderBubble(payload.new);feed.scrollTop=feed.scrollHeight}).subscribe();
 loadMessages();
+</script>
+
+<!-- HAMBURGER -->
+<button class="hamburger-btn" id="hamburger-btn" onclick="toggleMenu()" aria-label="תפריט">
+  <span></span><span></span><span></span>
+</button>
+
+<div class="hamburger-overlay" id="hamburger-overlay" onclick="toggleMenu()"></div>
+
+<div class="hamburger-menu" id="hamburger-menu">
+  <div class="menu-logo">S<span>&</span>D FEST</div>
+  <ul class="menu-links">
+    <li><a href="#top" onclick="toggleMenu()">בית</a></li>
+    <li><a href="#schedule" onclick="toggleMenu()">לוז</a></li>
+    <li><a href="#location" onclick="toggleMenu()">איך מגיעים</a></li>
+    <li><a href="#faq" onclick="toggleMenu()">שאלות</a></li>
+    <li><a href="#info" onclick="toggleMenu()">מה שצריך לדעת</a></li>
+    <li><a href="#thanks" onclick="toggleMenu()">מגשימי החלומות</a></li>
+  </ul>
+  <a class="menu-cal" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=S%26D+FEST+%E2%80%94+%D7%97%D7%AA%D7%95%D7%A0%D7%AA+%D7%A9%D7%99+%D7%95%D7%93%D7%A0%D7%99%D7%AA&dates=20260619T143000/20260620T235900&location=%D7%94%D7%91%D7%95%D7%A1%D7%AA%D7%9F+%D7%94%D7%A0%D7%A2%D7%9C%D7%9D" target="_blank">📅 Add to Calendar</a>
+</div>
+
+<script>
+function toggleMenu(){
+  document.getElementById('hamburger-btn').classList.toggle('open');
+  document.getElementById('hamburger-menu').classList.toggle('open');
+  document.getElementById('hamburger-overlay').classList.toggle('open');
+}
 </script>
 </body>
 </html>
