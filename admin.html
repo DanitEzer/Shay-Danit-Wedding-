@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S&D FEST — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Rubik:wght@300;400;700&family=Barlow+Condensed:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#F2E8D5;font-family:'Rubik',sans-serif;padding:2rem;direction:rtl}
+.header{background:#3D1F08;padding:1.5rem 2rem;border-radius:8px;margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center}
+.header h1{font-family:'Righteous',cursive;font-size:1.8rem;color:#F2E8D5}
+.header h1 span{color:#E8A820}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
+.stat{background:#3D1F08;border-radius:8px;padding:1.5rem;text-align:center;border:3px solid #D4581A}
+.stat-num{font-family:'Righteous',cursive;font-size:2.5rem;color:#E8A820;display:block}
+.stat-label{font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.3em;color:rgba(242,232,213,0.6);text-transform:uppercase;margin-top:0.3rem}
+.table-wrap{background:#FAF3E0;border:3px solid #3D1F08;border-radius:8px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{background:#3D1F08;color:#E8A820;font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;padding:1rem;text-align:right}
+td{padding:0.9rem 1rem;border-bottom:1px dashed rgba(61,31,8,0.15);font-size:0.9rem;color:#3D1F08}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(212,88,26,0.05)}
+.type-badge{font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.15em;padding:3px 10px;border-radius:20px;text-transform:uppercase}
+.type-shared{background:#D4581A;color:#FAF3E0}
+.type-private{background:#4BAE8A;color:#FAF3E0}
+.type-sky{background:#6BB5D6;color:#FAF3E0}
+.loading{text-align:center;padding:3rem;color:#8B6A4A;font-family:'Righteous',cursive;font-size:1.2rem}
+.refresh-btn{font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.5rem 1.2rem;background:var(--orange);color:#FAF3E0;border:2px solid #3D1F08;border-radius:20px;cursor:pointer;background:#D4581A;transition:background 0.2s}
+.refresh-btn:hover{background:#B03F08}
+.time{font-size:0.75rem;color:#8B6A4A}
+.password-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:1rem}
+.password-screen h2{font-family:'Righteous',cursive;font-size:2rem;color:#3D1F08}
+.password-screen input{padding:0.8rem 1.2rem;border:3px solid #3D1F08;border-radius:6px;font-family:'Rubik',sans-serif;font-size:1rem;outline:none;width:250px;text-align:center;direction:ltr}
+.password-screen button{padding:0.7rem 2rem;background:#D4581A;border:2px solid #3D1F08;border-radius:20px;font-family:'Righteous',cursive;font-size:1rem;color:#FAF3E0;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div id="password-screen" class="password-screen">
+  <h2>S&D FEST Admin 🌭</h2>
+  <input type="password" id="pwd-input" placeholder="סיסמה" onkeydown="if(event.key==='Enter')checkPassword()">
+  <button onclick="checkPassword()">כניסה</button>
+  <p id="pwd-error" style="color:#D4581A;font-size:0.85rem;display:none">סיסמה שגויה</p>
+</div>
+
+<div id="admin-content" style="display:none">
+  <div class="header">
+    <h1>S<span>&</span>D FEST — לינה</h1>
+    <button class="refresh-btn" onclick="loadData()">רענן 🔄</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><span class="stat-num" id="total-people">-</span><span class="stat-label">סה״כ אנשים</span></div>
+    <div class="stat"><span class="stat-num" id="total-entries">-</span><span class="stat-label">רשומות</span></div>
+    <div class="stat"><span class="stat-num" id="shared-count">-</span><span class="stat-label">אוהל משותף</span></div>
+    <div class="stat"><span class="stat-num" id="private-count">-</span><span class="stat-label">אוהל פרטי</span></div>
+  </div>
+
+  <div class="table-wrap">
+    <div id="table-content" class="loading">טוען נתונים...</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://mvuachvkxkqwbpbzpczk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12dWFjaHZreGtxd2JwYnpwY3prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDMwMzIsImV4cCI6MjA5MjIxOTAzMn0.FIOx0kVsjY7UzchC7OJDGVr3fUBjjVZ4pfwBA8JyCJU';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const PASSWORD = 'sndfest2026';
+
+function checkPassword(){
+  var pwd = document.getElementById('pwd-input').value;
+  if(pwd === PASSWORD){
+    document.getElementById('password-screen').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+    loadData();
+  } else {
+    document.getElementById('pwd-error').style.display = 'block';
+  }
+}
+
+function typeLabel(type){
+  if(type==='shared') return '<span class="type-badge type-shared">אוהל משותף</span>';
+  if(type==='private') return '<span class="type-badge type-private">אוהל פרטי</span>';
+  return '<span class="type-badge type-sky">כיפת שמיים ⭐</span>';
+}
+
+function formatDate(ts){
+  var d = new Date(ts);
+  return d.toLocaleDateString('he-IL') + ' ' + d.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});
+}
+
+async function loadData(){
+  document.getElementById('table-content').innerHTML = '<div class="loading">טוען...</div>';
+  var res = await sb.from('lodging').select('*').order('created_at',{ascending:false});
+  if(!res.data || res.data.length === 0){
+    document.getElementById('table-content').innerHTML = '<div class="loading">אין רשומות עדיין 🏕️</div>';
+    document.getElementById('total-people').textContent = '0';
+    document.getElementById('total-entries').textContent = '0';
+    document.getElementById('shared-count').textContent = '0';
+    document.getElementById('private-count').textContent = '0';
+    return;
+  }
+  var data = res.data;
+  var totalPeople = data.reduce(function(s,r){return s+(parseInt(r.guests)||0)},0);
+  var sharedCount = data.filter(function(r){return r.type==='shared'}).reduce(function(s,r){return s+(parseInt(r.guests)||0)},0);
+  var privateCount = data.filter(function(r){return r.type==='private'}).reduce(function(s,r){return s+(parseInt(r.guests)||0)},0);
+  document.getElementById('total-people').textContent = totalPeople;
+  document.getElementById('total-entries').textContent = data.length;
+  document.getElementById('shared-count').textContent = sharedCount;
+  document.getElementById('private-count').textContent = privateCount;
+
+  var rows = data.map(function(r){
+    return '<tr><td>'+r.name+'</td><td>'+r.guests+'</td><td>'+typeLabel(r.type)+'</td><td>'+(r.notes||'—')+'</td><td class="time">'+formatDate(r.created_at)+'</td></tr>';
+  }).join('');
+
+  document.getElementById('table-content').innerHTML = '<table><thead><tr><th>שם</th><th>אנשים</th><th>סוג לינה</th><th>הערות</th><th>תאריך</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+</script>
+</body>
+</html>
