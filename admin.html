@@ -207,7 +207,6 @@ function renderTable() {
   var cols = [
     {label: 'שם', key: 'name'},
     {label: '#', key: 'count', center: true},
-    {label: 'STD', key: 'save_date', center: true},
     {label: 'הזמנה', key: 'invitation', center: true},
     {label: 'סטטוס', key: 'status'},
     {label: 'קבוצה', key: 'group'},
@@ -305,7 +304,6 @@ function renderTable() {
     var cells = [
       {editable: true, field: 'name', val: g.name + (g.uncertain ? ' ?' : ''), bold: true},
       {content: g.count, center: true},
-      {sel: makeBool(g.save_date, 'save_date'), center: true},
       {sel: makeBool(g.invitation, 'invitation'), center: true},
       {sel: makeStatus(g.status)},
       {sel: makeGroup(g.group)},
