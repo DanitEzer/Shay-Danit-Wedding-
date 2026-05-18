@@ -36,6 +36,10 @@ tr:hover td{background:rgba(212,88,26,.05)}
 select.inline{font-family:Rubik,sans-serif;font-size:.8rem;border:1px solid #ddd;border-radius:4px;padding:3px 6px;background:#fff;cursor:pointer;direction:rtl;max-width:130px}
 .loading{text-align:center;padding:2rem;color:#8B6A4A;font-family:Righteous,cursive;font-size:1.2rem}
 .saved-msg{position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:#4BAE8A;color:#fff;padding:.4rem 1.2rem;border-radius:20px;font-family:'Barlow Condensed',sans-serif;font-size:.7rem;letter-spacing:.15em;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+.compact table{font-size:11px}
+.compact td,.compact th{padding:4px 5px}
+.compact select.inline{font-size:11px;padding:2px 3px;max-width:100px}
+.compact .stat-num{font-size:1.3rem}
 .group-input{font-family:Rubik,sans-serif;font-size:.8rem;border:1px solid #ddd;border-radius:4px;padding:3px 6px;background:#fff;direction:rtl;width:110px}
 </style>
 </head>
@@ -43,7 +47,7 @@ select.inline{font-family:Rubik,sans-serif;font-size:.8rem;border:1px solid #ddd
 
 <div class="topbar">
   <div class="topbar-logo">S<span>&</span>D FEST</div>
-  <button class="btn" onclick="exportCSV()">ייצא CSV</button>
+  <div style="display:flex;gap:.5rem"><button class="btn" id="compact-btn" onclick="toggleCompact()">📱 מובייל</button><button class="btn" onclick="exportCSV()">ייצא CSV</button></div>
 </div>
 <div class="saved-msg" id="saved-msg">&#10003; נשמר</div>
 
@@ -498,6 +502,18 @@ function exportCSV() {
   var csv = '\uFEFFשם,אנשים,ילדים,טלפון,STD,הזמנה,סטטוס,קבוצה\n' + rows.join('\n');
   var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'snd_guests.csv'; a.click();
+}
+
+function toggleCompact() {
+  var body = document.body;
+  var btn = document.getElementById('compact-btn');
+  if (body.classList.contains('compact')) {
+    body.classList.remove('compact');
+    btn.textContent = '📱 מובייל';
+  } else {
+    body.classList.add('compact');
+    btn.textContent = '🖥️ רגיל';
+  }
 }
 
 init();
