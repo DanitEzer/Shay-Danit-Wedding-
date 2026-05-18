@@ -210,8 +210,8 @@ function renderGuests(list) {
     <tr class="${g.uncertain ? 'uncertain' : ''}">
       <td><strong>${g.name}</strong>${g.uncertain ? ' <span style="color:#E8A820;font-size:0.75rem">?</span>' : ''}</td>
       <td style="text-align:center">${g.count}</td>
-      <td style="text-align:center">${g.kids || '—'}</td>
-      <td style="direction:ltr;text-align:left;font-size:0.8rem">${g.phone || '—'}</td>
+      <td style="text-align:center">${g.kids || '-'}</td>
+      <td style="direction:ltr;text-align:left;font-size:0.8rem">${g.phone || '-'}</td>
       <td style="text-align:center">
         <select class="check-select" onchange="updateGuest(${g.id},'save_date',this.value==='כן')">
           <option ${g.save_date ? 'selected' : ''}>כן</option>
@@ -250,8 +250,8 @@ function updateStats() {
   const invited = guests.filter(g => g.invitation).length;
 
   document.getElementById('stats').innerHTML = `
-    <div class="stat"><span class="stat-num">${guests.length}</span><span class="stat-label">סה״כ הזמנות</span></div>
-    <div class="stat"><span class="stat-num">${guests.reduce((s,g)=>s+(g.count||0),0)}</span><span class="stat-label">סה״כ אנשים</span></div>
+    <div class="stat"><span class="stat-num">${guests.length}</span><span class="stat-label">סהכ הזמנות</span></div>
+    <div class="stat"><span class="stat-num">${guests.reduce((s,g)=>s+(g.count||0),0)}</span><span class="stat-label">סהכ אנשים</span></div>
     <div class="stat" style="border-color:#4BAE8A"><span class="stat-num" style="color:#4BAE8A">${coming.length}</span><span class="stat-label">מגיעים (הזמנות)</span></div>
     <div class="stat" style="border-color:#4BAE8A"><span class="stat-num" style="color:#4BAE8A">${totalPeople}</span><span class="stat-label">מגיעים (אנשים)</span></div>
     <div class="stat" style="border-color:#C03020"><span class="stat-num" style="color:#C03020">${notComing.length}</span><span class="stat-label">לא מגיעים</span></div>
@@ -296,7 +296,7 @@ async function loadLodging() {
   const priv = data.filter(r=>r.type==='private').reduce((s,r)=>s+(parseInt(r.guests)||0),0);
 
   document.getElementById('lodging-stats').innerHTML = `
-    <div class="stat"><span class="stat-num">${total}</span><span class="stat-label">סה״כ ישנים</span></div>
+    <div class="stat"><span class="stat-num">${total}</span><span class="stat-label">סהכ ישנים</span></div>
     <div class="stat"><span class="stat-num">${data.length}</span><span class="stat-label">רשומות</span></div>
     <div class="stat" style="border-color:#E8A820"><span class="stat-num" style="color:#E8A820">${shared}</span><span class="stat-label">אוהל משותף</span></div>
     <div class="stat" style="border-color:#6BB5D6"><span class="stat-num" style="color:#6BB5D6">${priv}</span><span class="stat-label">אוהל פרטי</span></div>
@@ -313,7 +313,7 @@ async function loadLodging() {
       <td><strong>${r.name}</strong></td>
       <td style="text-align:center">${r.guests}</td>
       <td><span class="badge ${r.type==='shared'?'badge-unsure':r.type==='private'?'badge-coming':'badge-unknown'}">${typeLabel(r.type)}</span></td>
-      <td style="font-size:0.8rem;color:#8B6A4A">${r.notes||'—'}</td>
+      <td style="font-size:0.8rem;color:#8B6A4A">${r.notes||'-'}</td>
       <td style="font-size:0.75rem;color:#8B6A4A">${new Date(r.created_at).toLocaleDateString('he-IL')}</td>
     </tr>
   `).join('');
