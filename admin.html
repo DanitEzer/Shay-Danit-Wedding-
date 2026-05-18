@@ -7,117 +7,331 @@
 <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Rubik:wght@300;400;700&family=Barlow+Condensed:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#F2E8D5;font-family:'Rubik',sans-serif;padding:2rem;direction:rtl}
-.header{background:#3D1F08;padding:1.5rem 2rem;border-radius:8px;margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center}
-.header h1{font-family:'Righteous',cursive;font-size:1.8rem;color:#F2E8D5}
-.header h1 span{color:#E8A820}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
-.stat{background:#3D1F08;border-radius:8px;padding:1.5rem;text-align:center;border:3px solid #D4581A}
-.stat-num{font-family:'Righteous',cursive;font-size:2.5rem;color:#E8A820;display:block}
-.stat-label{font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.3em;color:rgba(242,232,213,0.6);text-transform:uppercase;margin-top:0.3rem}
-.table-wrap{background:#FAF3E0;border:3px solid #3D1F08;border-radius:8px;overflow:hidden}
-table{width:100%;border-collapse:collapse}
-th{background:#3D1F08;color:#E8A820;font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;padding:1rem;text-align:right}
-td{padding:0.9rem 1rem;border-bottom:1px dashed rgba(61,31,8,0.15);font-size:0.9rem;color:#3D1F08}
-tr:last-child td{border-bottom:none}
+body{background:#F2E8D5;font-family:'Rubik',sans-serif;direction:rtl;font-size:14px}
+
+/* PASSWORD */
+.pwd-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:1rem}
+.pwd-screen h2{font-family:'Righteous',cursive;font-size:2rem;color:#3D1F08}
+.pwd-screen input{padding:0.8rem 1.2rem;border:3px solid #3D1F08;border-radius:6px;font-family:'Rubik',sans-serif;font-size:1rem;outline:none;width:250px;text-align:center;direction:ltr}
+.pwd-screen button{padding:0.7rem 2rem;background:#D4581A;border:2px solid #3D1F08;border-radius:20px;font-family:'Righteous',cursive;font-size:1rem;color:#FAF3E0;cursor:pointer}
+
+/* LAYOUT */
+.admin{display:none;min-height:100vh}
+.topbar{background:#3D1F08;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-logo{font-family:'Righteous',cursive;font-size:1.4rem;color:#FAF3E0}
+.topbar-logo span{color:#E8A820}
+.tabs{display:flex;gap:0;border-bottom:3px solid #3D1F08}
+.tab{padding:0.8rem 1.5rem;font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;color:#8B6A4A;border-bottom:3px solid transparent;margin-bottom:-3px;transition:all 0.2s}
+.tab.active{color:#D4581A;border-bottom-color:#D4581A}
+.tab-content{display:none;padding:1.5rem}
+.tab-content.active{display:block}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.8rem;margin-bottom:1.5rem}
+.stat{background:#3D1F08;border-radius:8px;padding:1rem;text-align:center;border:2px solid #D4581A}
+.stat-num{font-family:'Righteous',cursive;font-size:2rem;color:#E8A820;display:block}
+.stat-label{font-family:'Barlow Condensed',sans-serif;font-size:0.58rem;letter-spacing:0.2em;color:rgba(242,232,213,0.5);text-transform:uppercase;margin-top:0.2rem}
+
+/* FILTERS */
+.filters{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
+.filter-select{padding:0.5rem 0.8rem;border:2px solid #3D1F08;background:#FAF3E0;font-family:'Rubik',sans-serif;font-size:0.8rem;border-radius:4px;outline:none;direction:rtl}
+.search-input{padding:0.5rem 0.8rem;border:2px solid #3D1F08;background:#FAF3E0;font-family:'Rubik',sans-serif;font-size:0.8rem;border-radius:4px;outline:none;flex:1;min-width:150px;direction:rtl}
+.filter-btn{padding:0.5rem 1rem;font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;border:2px solid #3D1F08;border-radius:20px;cursor:pointer;background:#FAF3E0;transition:all 0.2s}
+.filter-btn.active{background:#D4581A;color:#FAF3E0;border-color:#D4581A}
+
+/* TABLE */
+.table-wrap{background:#FAF3E0;border:3px solid #3D1F08;border-radius:8px;overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:800px}
+th{background:#3D1F08;color:#E8A820;font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.8rem;text-align:right;white-space:nowrap}
+td{padding:0.6rem 0.8rem;border-bottom:1px solid rgba(61,31,8,0.1);vertical-align:middle}
 tr:hover td{background:rgba(212,88,26,0.05)}
-.type-badge{font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.15em;padding:3px 10px;border-radius:20px;text-transform:uppercase}
-.type-shared{background:#D4581A;color:#FAF3E0}
-.type-private{background:#4BAE8A;color:#FAF3E0}
-.type-sky{background:#6BB5D6;color:#FAF3E0}
-.loading{text-align:center;padding:3rem;color:#8B6A4A;font-family:'Righteous',cursive;font-size:1.2rem}
-.refresh-btn{font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.5rem 1.2rem;background:var(--orange);color:#FAF3E0;border:2px solid #3D1F08;border-radius:20px;cursor:pointer;background:#D4581A;transition:background 0.2s}
-.refresh-btn:hover{background:#B03F08}
-.time{font-size:0.75rem;color:#8B6A4A}
-.password-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:1rem}
-.password-screen h2{font-family:'Righteous',cursive;font-size:2rem;color:#3D1F08}
-.password-screen input{padding:0.8rem 1.2rem;border:3px solid #3D1F08;border-radius:6px;font-family:'Rubik',sans-serif;font-size:1rem;outline:none;width:250px;text-align:center;direction:ltr}
-.password-screen button{padding:0.7rem 2rem;background:#D4581A;border:2px solid #3D1F08;border-radius:20px;font-family:'Righteous',cursive;font-size:1rem;color:#FAF3E0;cursor:pointer}
+tr.uncertain td{opacity:0.5}
+
+/* BADGES */
+.badge{font-family:'Barlow Condensed',sans-serif;font-size:0.58rem;letter-spacing:0.1em;padding:2px 8px;border-radius:20px;text-transform:uppercase;white-space:nowrap}
+.badge-coming{background:#4BAE8A;color:#fff}
+.badge-notcoming{background:#C03020;color:#fff}
+.badge-unknown{background:#8B6A4A;color:#fff}
+.badge-unsure{background:#E8A820;color:#3D1F08}
+.badge-question{background:#ddd;color:#666}
+.badge-save-yes{background:#4BAE8A;color:#fff}
+.badge-save-no{background:#ddd;color:#888}
+
+/* SELECTS in table */
+.status-select{font-family:'Rubik',sans-serif;font-size:0.8rem;border:1px solid #ddd;border-radius:4px;padding:3px 6px;background:#fff;outline:none;cursor:pointer;direction:rtl}
+.check-select{font-family:'Rubik',sans-serif;font-size:0.8rem;border:1px solid #ddd;border-radius:4px;padding:3px 6px;background:#fff;cursor:pointer;direction:rtl}
+
+/* LODGING TAB */
+.lodging-table-wrap{background:#FAF3E0;border:3px solid #3D1F08;border-radius:8px;overflow:auto;margin-top:1rem}
+
+/* SAVE BTN */
+.save-indicator{font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;padding:0.4rem 1rem;background:#4BAE8A;color:#fff;border:none;border-radius:20px;cursor:pointer;opacity:0;transition:opacity 0.3s}
+.save-indicator.show{opacity:1}
 </style>
 </head>
 <body>
 
-<div id="password-screen" class="password-screen">
-  <h2>S&D FEST Admin 🌭</h2>
-  <input type="password" id="pwd-input" placeholder="סיסמה" onkeydown="if(event.key==='Enter')checkPassword()">
-  <button onclick="checkPassword()">כניסה</button>
-  <p id="pwd-error" style="color:#D4581A;font-size:0.85rem;display:none">סיסמה שגויה</p>
+<div class="pwd-screen" id="pwd-screen">
+  <h2>S<span style="color:#D4581A">&</span>D FEST Admin 🌭</h2>
+  <input type="password" id="pwd-input" placeholder="סיסמה" onkeydown="if(event.key==='Enter')checkPwd()">
+  <button onclick="checkPwd()">כניסה</button>
+  <p id="pwd-err" style="color:#D4581A;font-size:0.85rem;display:none">סיסמה שגויה</p>
 </div>
 
-<div id="admin-content" style="display:none">
-  <div class="header">
-    <h1>S<span>&</span>D FEST — לינה</h1>
-    <button class="refresh-btn" onclick="loadData()">רענן 🔄</button>
+<div class="admin" id="admin">
+  <div class="topbar">
+    <div class="topbar-logo">S<span>&</span>D FEST — ניהול</div>
+    <span id="save-btn" class="save-indicator">✓ נשמר</span>
   </div>
 
-  <div class="stats">
-    <div class="stat"><span class="stat-num" id="total-people">-</span><span class="stat-label">סה״כ אנשים</span></div>
-    <div class="stat"><span class="stat-num" id="total-entries">-</span><span class="stat-label">רשומות</span></div>
-    <div class="stat"><span class="stat-num" id="shared-count">-</span><span class="stat-label">אוהל משותף</span></div>
-    <div class="stat"><span class="stat-num" id="private-count">-</span><span class="stat-label">אוהל פרטי</span></div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('guests')">אישורי הגעה</div>
+    <div class="tab" onclick="switchTab('lodging')">לינה</div>
   </div>
 
-  <div class="table-wrap">
-    <div id="table-content" class="loading">טוען נתונים...</div>
+  <!-- GUESTS TAB -->
+  <div class="tab-content active" id="tab-guests">
+    <div class="stats" id="stats"></div>
+
+    <div class="filters">
+      <input type="text" class="search-input" placeholder="חיפוש שם..." oninput="filterGuests()" id="search-input">
+      <select class="filter-select" onchange="filterGuests()" id="filter-group">
+        <option value="">כל הקבוצות</option>
+        <option>חברים</option>
+        <option>משפחה</option>
+        <option>עבודה</option>
+        <option>משפחת אייזנר</option>
+        <option>משפחת עזר</option>
+        <option>חברים של שי</option>
+        <option>אופיר</option>
+        <option>עדי</option>
+        <option>אלעד</option>
+        <option>שיר</option>
+      </select>
+      <select class="filter-select" onchange="filterGuests()" id="filter-status">
+        <option value="">כל הסטטוסים</option>
+        <option>מגיע</option>
+        <option>לא מגיע</option>
+        <option>לא ענה</option>
+        <option>לא בטוח</option>
+      </select>
+      <button class="filter-btn" onclick="exportCSV()">ייצא CSV</button>
+    </div>
+
+    <div class="table-wrap">
+      <table id="guests-table">
+        <thead>
+          <tr>
+            <th>שם</th>
+            <th>אנשים</th>
+            <th>ילדים</th>
+            <th>טלפון</th>
+            <th>Save the Date</th>
+            <th>הזמנה</th>
+            <th>סטטוס</th>
+            <th>קבוצה</th>
+          </tr>
+        </thead>
+        <tbody id="guests-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LODGING TAB -->
+  <div class="tab-content" id="tab-lodging">
+    <div class="stats" id="lodging-stats"></div>
+    <div class="lodging-table-wrap">
+      <div id="lodging-content" style="padding:2rem;text-align:center;color:#8B6A4A">טוען...</div>
+    </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const PASSWORD = 'sndfest2026';
 const SUPABASE_URL = 'https://mvuachvkxkqwbpbzpczk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12dWFjaHZreGtxd2JwYnpwY3prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDMwMzIsImV4cCI6MjA5MjIxOTAzMn0.FIOx0kVsjY7UzchC7OJDGVr3fUBjjVZ4pfwBA8JyCJU';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const PASSWORD = 'sndfest2026';
+// Guest data
+let guests = [{"id": 1, "name": "אלון", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 2, "name": "קובי ורחל", "count": 2, "kids": 0, "phone": "525223100", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 3, "name": "ירמי", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 4, "name": "תום ששון", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים של שי", "uncertain": false}, {"id": 5, "name": "עדן", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 6, "name": "מירה ורולי", "count": 2, "kids": 0, "phone": "528510433", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 7, "name": "שניידרמן", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": true}, {"id": 8, "name": "עדן ששון", "count": 2, "kids": 0, "phone": "548001145", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים של שי", "uncertain": false}, {"id": 9, "name": "זסלר +1", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 10, "name": "גילי", "count": 2, "kids": 2, "phone": "505675166", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 11, "name": "מיידן", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 12, "name": "לין ושלומי", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים של שי", "uncertain": false}, {"id": 13, "name": "שכטר+1", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 14, "name": "שרון", "count": 2, "kids": 2, "phone": "509116550", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 15, "name": "לני", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 16, "name": "אביגיל וערנן", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים של שי", "uncertain": false}, {"id": 17, "name": "גלב +1", "count": 2, "kids": 1, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 18, "name": "ענבל", "count": 2, "kids": 3, "phone": "507788140", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 19, "name": "שימעוני", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 20, "name": "כסיף", "count": 2, "kids": 0, "phone": "545832799", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 21, "name": "בועז +1", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 22, "name": "חן", "count": 2, "kids": 3, "phone": "549182525", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 23, "name": "ג'אנגו", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": true}, {"id": 24, "name": "עמה ועוזי", "count": 2, "kids": 0, "phone": "547747304", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 25, "name": "ליאור טנסקי+1", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 26, "name": "רועי", "count": 2, "kids": 2, "phone": "546005263", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 27, "name": "ניר גבע", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 28, "name": "ענת ודורון", "count": 2, "kids": 0, "phone": "526664449", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 29, "name": "תום+1", "count": 2, "kids": 1, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 30, "name": "יובל", "count": 2, "kids": 0, "phone": "537177335", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 31, "name": "גאגי", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 32, "name": "תמי גרוסמן", "count": 2, "kids": 0, "phone": "505300329", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 33, "name": "ברצוק+1", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 34, "name": "סבתא רבקה", "count": 1, "kids": 0, "phone": "509451470", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 35, "name": "דור אילן", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 36, "name": "דומיניק", "count": 1, "kids": 0, "phone": "523850440", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 37, "name": "אביבי +1", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 38, "name": "בני ודבורה", "count": 2, "kids": 0, "phone": "526002264", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 39, "name": "עודד גזית", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 40, "name": "ילדים דומיניק", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 41, "name": "לירון +1", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 42, "name": "עוזי", "count": 2, "kids": 0, "phone": "526913232", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 43, "name": "עידן וויקליס", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 44, "name": "איילת ורוני", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 45, "name": "דשה", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 46, "name": "ליאת", "count": 2, "kids": 0, "phone": "543141628", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 47, "name": "רותם ובלן", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": true}, {"id": 48, "name": "אילנה", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 49, "name": "מרינה", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 50, "name": "יניב", "count": 2, "kids": 0, "phone": "543188346", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 51, "name": "מיטלמן", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": true}, {"id": 52, "name": "אוריה", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 53, "name": "סתיו", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 54, "name": "סמדי", "count": 2, "kids": 0, "phone": "507448810", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 55, "name": "שי צברי", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 56, "name": "ליאם", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 57, "name": "טל גורלי+1", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 58, "name": "מוטי", "count": 2, "kids": 0, "phone": "545934700", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 59, "name": "נומוק", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": true}, {"id": 60, "name": "ענבר", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 61, "name": "חכים", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 62, "name": "אריה וקלואודיה", "count": 2, "kids": 0, "phone": "522614012", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 63, "name": "אליסף", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 64, "name": "משפח פרחי", "count": 6, "kids": 0, "phone": "528285205", "save_date": true, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 65, "name": "אור ריכטמן", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 66, "name": "ירון", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 67, "name": "כוכבי", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 68, "name": "נטע", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 69, "name": "נועה הראל", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 70, "name": "תומר?", "count": 1, "kids": 0, "phone": "526590801", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 71, "name": "עינת", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": true}, {"id": 72, "name": "עמית", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 73, "name": "עומר בן סעדון", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 74, "name": "מושיק ומנדלן", "count": 2, "kids": 0, "phone": "506524242", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 75, "name": "נועם גרשלר", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 76, "name": "בן", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 77, "name": "טל ליפצין+1", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 78, "name": "עוז", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 79, "name": "שחר לוי", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 80, "name": "מיה", "count": 1, "kids": 0, "phone": "543416733", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עדי", "uncertain": false}, {"id": 81, "name": "מעיין", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 82, "name": "ליאור ונחמה?", "count": 2, "kids": 0, "phone": "508849100", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 83, "name": "קרן טפרבגרג", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 84, "name": "יעל", "count": 1, "kids": 0, "phone": "547943328", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עדי", "uncertain": false}, {"id": 85, "name": "יעל זליגמן+1", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 86, "name": "אלתר?", "count": 2, "kids": 0, "phone": "507574750", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 87, "name": "ברק יחזקאלי", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 88, "name": "רחל", "count": 1, "kids": 0, "phone": "526785359", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עדי", "uncertain": false}, {"id": 89, "name": "רותם יונה", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 90, "name": "יהודית", "count": 1, "kids": 0, "phone": "546367899", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 91, "name": "נטע שלזינגר", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 92, "name": "מאיה ביליץ", "count": 1, "kids": 0, "phone": "584241486", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עדי", "uncertain": false}, {"id": 93, "name": "רון ח ?", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 94, "name": "עמוסי", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 95, "name": "שונטי", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 96, "name": "מאיה", "count": 1, "kids": 0, "phone": "584691425", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עדי", "uncertain": false}, {"id": 97, "name": "נגה ?", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 98, "name": "נועה", "count": 1, "kids": 0, "phone": "543424522", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 99, "name": "שטרקר", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 100, "name": "קשת", "count": 1, "kids": 0, "phone": "545751134", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עדי", "uncertain": false}, {"id": 101, "name": "ירדן גולדשטיין?", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 102, "name": "הבנות של נועה", "count": 3, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 103, "name": "גל", "count": 1, "kids": 0, "phone": "547246629", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עדי", "uncertain": false}, {"id": 104, "name": "גיא פקטור", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 105, "name": "ליאורה", "count": 1, "kids": 0, "phone": "542601022", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 106, "name": "עידו", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 107, "name": "נועם", "count": 1, "kids": 0, "phone": "506867888", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עדי", "uncertain": false}, {"id": 108, "name": "משפחת פקטור", "count": 4, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 109, "name": "ניבה", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 110, "name": "מעיין", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": true}, {"id": 111, "name": "שקד", "count": 1, "kids": 0, "phone": "523088285", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עדי", "uncertain": false}, {"id": 112, "name": "צליל חייקי", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 113, "name": "מוטי", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 114, "name": "איתי", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": true}, {"id": 115, "name": "כרמל אפרון", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 116, "name": "אילני", "count": 5, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 117, "name": "יובל דיין", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": true}, {"id": 118, "name": "יהודית", "count": 1, "kids": 0, "phone": "523733143", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 119, "name": "און ודור", "count": 2, "kids": 2, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 120, "name": "שמוליק", "count": 2, "kids": 0, "phone": "526368882", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 121, "name": "ינעם צימבליסטה", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא מגיע", "group": "עבודה", "uncertain": false}, {"id": 122, "name": "צביה", "count": 1, "kids": 0, "phone": "505772214", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 123, "name": "מנו ויובי", "count": 2, "kids": 2, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 124, "name": "אסתר", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 125, "name": "חן צימבליסטה", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא מגיע", "group": "עבודה", "uncertain": false}, {"id": 126, "name": "יעל", "count": 1, "kids": 0, "phone": "544664175", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 127, "name": "נדין וירדן", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 128, "name": "דני גרמניה", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 129, "name": "אלונה", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 130, "name": "יוכי סיגלר", "count": 2, "kids": 0, "phone": "546454695", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 131, "name": "קים ואלירן", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 132, "name": "גילי גרמניה", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 133, "name": "אדם כהן", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 134, "name": "טלי הראל", "count": 2, "kids": 0, "phone": "528680840", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 135, "name": "צורי דנינו", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 136, "name": "שלומי לאופר", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 137, "name": "רייטר", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 138, "name": "רייצ'ל?", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 139, "name": "אלבו", "count": 2, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 140, "name": "ההורים של עדן", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 141, "name": "אופיר ביל", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": true}, {"id": 142, "name": "אמינה", "count": 1, "kids": 0, "phone": "543527788", "save_date": true, "invitation": false, "status": "לא ענה", "group": "משפחת אייזנר", "uncertain": false}, {"id": 143, "name": "ירדן", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 144, "name": "רוני לוי", "count": 1, "kids": 0, "phone": "523900451", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עדי", "uncertain": false}, {"id": 145, "name": "דנה שם טוב", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 146, "name": "מיינץ", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 147, "name": "יורם", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 148, "name": "יוחאי", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא מגיע", "group": "עבודה", "uncertain": false}, {"id": 149, "name": "חגי", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 150, "name": "רונן", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 151, "name": "אמיר גולדשמיט", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 152, "name": "איילה פרבר", "count": 1, "kids": 0, "phone": "", "save_date": true, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 153, "name": "משפחת גרינגליק", "count": 8, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 154, "name": "מורן", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 155, "name": "ירין", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 156, "name": "אסף", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 157, "name": "ארז", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 158, "name": "דין", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 159, "name": "לופה", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 160, "name": "שיר ויובי", "count": 2, "kids": 3, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 161, "name": "קליג'", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 162, "name": "סהר ורועי", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 163, "name": "אלעד וספירי", "count": 2, "kids": 2, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 164, "name": "עומר כנפיים", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 165, "name": "דור ונועם", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 166, "name": "אופיר וטומי", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 167, "name": "יוסי", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 168, "name": "אליעד", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 169, "name": "קטי ואמיר", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 170, "name": "שרון", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 171, "name": "עומר הראל", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אלעד", "uncertain": false}, {"id": 172, "name": "ניל", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 173, "name": "הילדים של קטי ואמיר", "count": 3, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 174, "name": "אופיר להב", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 175, "name": "אור שלזינגר", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אלעד", "uncertain": false}, {"id": 176, "name": "משפחה עגנה", "count": 3, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 177, "name": "יפית יוסי והבנות", "count": 4, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 178, "name": "ניר קרסו", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 179, "name": "איתי כהן", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אלעד", "uncertain": false}, {"id": 180, "name": "עומרי ומתן", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 181, "name": "דורית ושאול", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 182, "name": "טל רגב", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 183, "name": "יקיר סרוסי", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אלעד", "uncertain": false}, {"id": 184, "name": "מייקל", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 185, "name": "גלעד וקרן", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 186, "name": "אירה", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 187, "name": "אור עזרא", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אלעד", "uncertain": false}, {"id": 188, "name": "עג'נה", "count": 2, "kids": 1, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 189, "name": "טל וטום", "count": 2, "kids": 1, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 190, "name": "אודי", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 191, "name": "ניר כחלון", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אלעד", "uncertain": false}, {"id": 192, "name": "עדי יחזקאל", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 193, "name": "ורד ואיציק", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 194, "name": "ערן שניצל", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 195, "name": "בן אוזן", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אלעד", "uncertain": false}, {"id": 196, "name": "הילה עמירה", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 197, "name": "הילדים של ורד", "count": 4, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 198, "name": "שיר עמית", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 199, "name": "נאור שירזי", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אלעד", "uncertain": false}, {"id": 200, "name": "לירז", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 201, "name": "שרוני ואלון", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 202, "name": "אייזיק", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 203, "name": "שלומי נאור", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אלעד", "uncertain": false}, {"id": 204, "name": "טופז", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 205, "name": "רואי דניאל וינונתן", "count": 3, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 206, "name": "יונתן", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 207, "name": "צביקה", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אלעד", "uncertain": false}, {"id": 208, "name": "ימית", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 209, "name": "סבתא מדלן", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 210, "name": "דניאל חיימוב", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 211, "name": "משפחה יובל", "count": 6, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "שיר", "uncertain": false}, {"id": 212, "name": "אוריה", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 213, "name": "ספיר ואופק", "count": 2, "kids": 3, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 214, "name": "אמיר", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 215, "name": "נטלי", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "שיר", "uncertain": false}, {"id": 216, "name": "רוני ואיתי", "count": 2, "kids": 2, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 217, "name": "זהבה", "count": 1, "kids": 2, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 218, "name": "קובי קרדורקס", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 219, "name": "רעות", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "שיר", "uncertain": false}, {"id": 220, "name": "מאיה ויניב", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 221, "name": "עפרה ושמשון", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 222, "name": "גילי ונועם", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 223, "name": "שרית", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "שיר", "uncertain": false}, {"id": 224, "name": "רעות וזיו", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 225, "name": "עדי בת דודה", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 226, "name": "ולד", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 227, "name": "לילך", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "שיר", "uncertain": false}, {"id": 228, "name": "אדיר גולן", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 229, "name": "יובל בת דודה", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 230, "name": "דני קפלן", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 231, "name": "פיסטוק", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "שיר", "uncertain": false}, {"id": 232, "name": "אופקי וללי", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 233, "name": "עופרי בת דודה", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחה", "uncertain": false}, {"id": 234, "name": "תומר ליביוס", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 235, "name": "אורטל", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "שיר", "uncertain": false}, {"id": 236, "name": "גיא ומור", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 237, "name": "עדי הלוי", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 238, "name": "הדס", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "שיר", "uncertain": false}, {"id": 239, "name": "פישר", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 240, "name": "טל פדלון", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 241, "name": "מירי", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "שיר", "uncertain": false}, {"id": 242, "name": "תומר ואיציק", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 243, "name": "גיא רות", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 244, "name": "דולב", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "שיר", "uncertain": false}, {"id": 245, "name": "עומר ניב", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 246, "name": "הילה יוספברג", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 247, "name": "קים", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "שיר", "uncertain": false}, {"id": 248, "name": "אורן", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 249, "name": "אסנת", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "עבודה", "uncertain": false}, {"id": 250, "name": "שרון", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 251, "name": "אופיר אלון", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 252, "name": "ניצן", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 253, "name": "דרור", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 254, "name": "עמית", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 255, "name": "שני מויאל", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 256, "name": "שירה", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 257, "name": "עומר בן זאב", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 258, "name": "אופיר חברה", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 259, "name": "גל בית הלוי", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 260, "name": "קובי ואפרת", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 261, "name": "עופרי", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 262, "name": "נורית ועודד", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 263, "name": "אסף וגל", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 264, "name": "מיקה ועמית (אחים טומי)", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 265, "name": "נדב", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": true}, {"id": 266, "name": "שירה ואיתי (אחים טומי)", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "אופיר", "uncertain": false}, {"id": 267, "name": "טל מילשטיין", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 268, "name": "חני", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 269, "name": "קים ולירן", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 270, "name": "רגינה", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 271, "name": "ניר ולילך", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 272, "name": "רונית", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 273, "name": "תמר", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 274, "name": "איילה", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 275, "name": "שני בר", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 276, "name": "איריס", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 277, "name": "רז", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 278, "name": "ורד", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 279, "name": "צליל וניב", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 280, "name": "סיגי וחיים", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 281, "name": "מאיר ואמיר", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 282, "name": "ברק ואתי", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 283, "name": "יוחאי", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 284, "name": "רוחמה ועוזי", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 285, "name": "פרבי", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 286, "name": "ריקי ויגאל", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 287, "name": "בוב", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 288, "name": "סמדי ויוסי", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 289, "name": "רותי", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 290, "name": "סידו ואורלי", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 291, "name": "נטלי אמונה", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 292, "name": "נעמי ודוד", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 293, "name": "אירית ירון דוקר", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "חברים", "uncertain": false}, {"id": 294, "name": "מירי ושלמה", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 295, "name": "אבי וענת", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 296, "name": "אילן ורוחה", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 297, "name": "אביבה ופפה", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 298, "name": "יוסי אוחיון", "count": 1, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 299, "name": "אלירז ועמית", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 300, "name": "אסף איתי ואלון", "count": 3, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 301, "name": "אלי וחנה", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}, {"id": 302, "name": "לאה ורוני", "count": 2, "kids": 0, "phone": "", "save_date": false, "invitation": false, "status": "לא ענה", "group": "משפחת עזר", "uncertain": false}];
 
-function checkPassword(){
-  var pwd = document.getElementById('pwd-input').value;
-  if(pwd === PASSWORD){
-    document.getElementById('password-screen').style.display = 'none';
-    document.getElementById('admin-content').style.display = 'block';
-    loadData();
+// Load saved state from localStorage
+function loadState() {
+  try {
+    const saved = localStorage.getItem('snd_guests');
+    if (saved) {
+      const savedData = JSON.parse(saved);
+      guests = guests.map(g => {
+        const s = savedData.find(x => x.id === g.id);
+        return s ? {...g, ...s} : g;
+      });
+    }
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('snd_guests', JSON.stringify(guests));
+    const btn = document.getElementById('save-btn');
+    btn.classList.add('show');
+    setTimeout(() => btn.classList.remove('show'), 2000);
+  } catch(e) {}
+}
+
+function checkPwd() {
+  if (document.getElementById('pwd-input').value === PASSWORD) {
+    document.getElementById('pwd-screen').style.display = 'none';
+    document.getElementById('admin').style.display = 'block';
+    loadState();
+    renderGuests(guests);
+    updateStats();
+    loadLodging();
   } else {
-    document.getElementById('pwd-error').style.display = 'block';
+    document.getElementById('pwd-err').style.display = 'block';
   }
 }
 
-function typeLabel(type){
-  if(type==='shared') return '<span class="type-badge type-shared">אוהל משותף</span>';
-  if(type==='private') return '<span class="type-badge type-private">אוהל פרטי</span>';
-  return '<span class="type-badge type-sky">כיפת שמיים ⭐</span>';
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['guests','lodging'][i] === tab));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
 }
 
-function formatDate(ts){
-  var d = new Date(ts);
-  return d.toLocaleDateString('he-IL') + ' ' + d.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});
+function statusBadge(s) {
+  const map = {'מגיע':'badge-coming','לא מגיע':'badge-notcoming','לא ענה':'badge-unknown','לא בטוח':'badge-unsure'};
+  return '<span class="badge ' + (map[s]||'badge-question') + '">' + s + '</span>';
 }
 
-async function loadData(){
-  document.getElementById('table-content').innerHTML = '<div class="loading">טוען...</div>';
-  var res = await sb.from('lodging').select('*').order('created_at',{ascending:false});
-  if(!res.data || res.data.length === 0){
-    document.getElementById('table-content').innerHTML = '<div class="loading">אין רשומות עדיין 🏕️</div>';
-    document.getElementById('total-people').textContent = '0';
-    document.getElementById('total-entries').textContent = '0';
-    document.getElementById('shared-count').textContent = '0';
-    document.getElementById('private-count').textContent = '0';
+function renderGuests(list) {
+  const tbody = document.getElementById('guests-tbody');
+  tbody.innerHTML = list.map(g => `
+    <tr class="${g.uncertain ? 'uncertain' : ''}">
+      <td><strong>${g.name}</strong>${g.uncertain ? ' <span style="color:#E8A820;font-size:0.75rem">?</span>' : ''}</td>
+      <td style="text-align:center">${g.count}</td>
+      <td style="text-align:center">${g.kids || '—'}</td>
+      <td style="direction:ltr;text-align:left;font-size:0.8rem">${g.phone || '—'}</td>
+      <td style="text-align:center">
+        <select class="check-select" onchange="updateGuest(${g.id},'save_date',this.value==='כן')">
+          <option ${g.save_date ? 'selected' : ''}>כן</option>
+          <option ${!g.save_date ? 'selected' : ''}>לא</option>
+        </select>
+      </td>
+      <td style="text-align:center">
+        <select class="check-select" onchange="updateGuest(${g.id},'invitation',this.value==='כן')">
+          <option ${g.invitation ? 'selected' : ''}>כן</option>
+          <option ${!g.invitation ? 'selected' : ''}>לא</option>
+        </select>
+      </td>
+      <td>
+        <select class="status-select" onchange="updateGuest(${g.id},'status',this.value)">
+          <option ${g.status==='מגיע'?'selected':''}>מגיע</option>
+          <option ${g.status==='לא מגיע'?'selected':''}>לא מגיע</option>
+          <option ${g.status==='לא ענה'?'selected':''}>לא ענה</option>
+          <option ${g.status==='לא בטוח'?'selected':''}>לא בטוח</option>
+        </select>
+      </td>
+      <td><span class="badge" style="background:#F2E8D5;color:#3D1F08;border:1px solid #ddd">${g.group}</span></td>
+    </tr>
+  `).join('');
+}
+
+function updateGuest(id, field, value) {
+  const g = guests.find(x => x.id === id);
+  if (g) { g[field] = value; saveState(); updateStats(); }
+}
+
+function updateStats() {
+  const coming = guests.filter(g => g.status === 'מגיע');
+  const notComing = guests.filter(g => g.status === 'לא מגיע');
+  const unknown = guests.filter(g => g.status === 'לא ענה');
+  const totalPeople = coming.reduce((s,g) => s + (g.count||0), 0);
+  const invited = guests.filter(g => g.invitation).length;
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><span class="stat-num">${guests.length}</span><span class="stat-label">סה״כ הזמנות</span></div>
+    <div class="stat"><span class="stat-num">${guests.reduce((s,g)=>s+(g.count||0),0)}</span><span class="stat-label">סה״כ אנשים</span></div>
+    <div class="stat" style="border-color:#4BAE8A"><span class="stat-num" style="color:#4BAE8A">${coming.length}</span><span class="stat-label">מגיעים (הזמנות)</span></div>
+    <div class="stat" style="border-color:#4BAE8A"><span class="stat-num" style="color:#4BAE8A">${totalPeople}</span><span class="stat-label">מגיעים (אנשים)</span></div>
+    <div class="stat" style="border-color:#C03020"><span class="stat-num" style="color:#C03020">${notComing.length}</span><span class="stat-label">לא מגיעים</span></div>
+    <div class="stat"><span class="stat-num">${unknown.length}</span><span class="stat-label">לא ענו</span></div>
+    <div class="stat" style="border-color:#E8A820"><span class="stat-num" style="color:#E8A820">${invited}</span><span class="stat-label">קיבלו הזמנה</span></div>
+  `;
+}
+
+function filterGuests() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const group = document.getElementById('filter-group').value;
+  const status = document.getElementById('filter-status').value;
+  
+  const filtered = guests.filter(g => {
+    if (search && !g.name.toLowerCase().includes(search)) return false;
+    if (group && g.group !== group) return false;
+    if (status && g.status !== status) return false;
+    return true;
+  });
+  renderGuests(filtered);
+}
+
+function exportCSV() {
+  const headers = ['שם','אנשים','ילדים','טלפון','Save the Date','הזמנה','סטטוס','קבוצה'];
+  const rows = guests.map(g => [g.name, g.count, g.kids||0, g.phone, g.save_date?'כן':'לא', g.invitation?'כן':'לא', g.status, g.group]);
+  const csv = [headers, ...rows].map(r => r.join(',')).join('
+');
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'snd_guests.csv';
+  a.click();
+}
+
+// LODGING
+async function loadLodging() {
+  const res = await sb.from('lodging').select('*').order('created_at', {ascending:false});
+  const data = res.data || [];
+  
+  const total = data.reduce((s,r) => s+(parseInt(r.guests)||0), 0);
+  const shared = data.filter(r=>r.type==='shared').reduce((s,r)=>s+(parseInt(r.guests)||0),0);
+  const priv = data.filter(r=>r.type==='private').reduce((s,r)=>s+(parseInt(r.guests)||0),0);
+
+  document.getElementById('lodging-stats').innerHTML = `
+    <div class="stat"><span class="stat-num">${total}</span><span class="stat-label">סה״כ ישנים</span></div>
+    <div class="stat"><span class="stat-num">${data.length}</span><span class="stat-label">רשומות</span></div>
+    <div class="stat" style="border-color:#E8A820"><span class="stat-num" style="color:#E8A820">${shared}</span><span class="stat-label">אוהל משותף</span></div>
+    <div class="stat" style="border-color:#6BB5D6"><span class="stat-num" style="color:#6BB5D6">${priv}</span><span class="stat-label">אוהל פרטי</span></div>
+  `;
+
+  if (!data.length) {
+    document.getElementById('lodging-content').textContent = 'אין רשומות עדיין 🏕️';
     return;
   }
-  var data = res.data;
-  var totalPeople = data.reduce(function(s,r){return s+(parseInt(r.guests)||0)},0);
-  var sharedCount = data.filter(function(r){return r.type==='shared'}).reduce(function(s,r){return s+(parseInt(r.guests)||0)},0);
-  var privateCount = data.filter(function(r){return r.type==='private'}).reduce(function(s,r){return s+(parseInt(r.guests)||0)},0);
-  document.getElementById('total-people').textContent = totalPeople;
-  document.getElementById('total-entries').textContent = data.length;
-  document.getElementById('shared-count').textContent = sharedCount;
-  document.getElementById('private-count').textContent = privateCount;
 
-  var rows = data.map(function(r){
-    return '<tr><td>'+r.name+'</td><td>'+r.guests+'</td><td>'+typeLabel(r.type)+'</td><td>'+(r.notes||'—')+'</td><td class="time">'+formatDate(r.created_at)+'</td></tr>';
-  }).join('');
+  const typeLabel = t => t==='shared'?'אוהל משותף':t==='private'?'אוהל פרטי':'כיפת שמיים ⭐';
+  const rows = data.map(r => `
+    <tr>
+      <td><strong>${r.name}</strong></td>
+      <td style="text-align:center">${r.guests}</td>
+      <td><span class="badge ${r.type==='shared'?'badge-unsure':r.type==='private'?'badge-coming':'badge-unknown'}">${typeLabel(r.type)}</span></td>
+      <td style="font-size:0.8rem;color:#8B6A4A">${r.notes||'—'}</td>
+      <td style="font-size:0.75rem;color:#8B6A4A">${new Date(r.created_at).toLocaleDateString('he-IL')}</td>
+    </tr>
+  `).join('');
 
-  document.getElementById('table-content').innerHTML = '<table><thead><tr><th>שם</th><th>אנשים</th><th>סוג לינה</th><th>הערות</th><th>תאריך</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  document.getElementById('lodging-content').innerHTML = `
+    <table style="width:100%;border-collapse:collapse;min-width:600px">
+      <thead><tr>
+        <th style="background:#3D1F08;color:#E8A820;font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.8rem;text-align:right">שם</th>
+        <th style="background:#3D1F08;color:#E8A820;font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.8rem;text-align:center">אנשים</th>
+        <th style="background:#3D1F08;color:#E8A820;font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.8rem;text-align:right">סוג לינה</th>
+        <th style="background:#3D1F08;color:#E8A820;font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.8rem;text-align:right">הערות</th>
+        <th style="background:#3D1F08;color:#E8A820;font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.8rem;text-align:right">תאריך</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
 }
+
+document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPwd(); });
 </script>
 </body>
 </html>
