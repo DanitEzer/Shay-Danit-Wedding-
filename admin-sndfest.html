@@ -41,8 +41,8 @@ select.inline{font-family:Rubik,sans-serif;font-size:.8rem;border:1px solid #ddd
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="switchTab('guests',this)">אישורי הגעה</button>
-  <button class="tab" onclick="switchTab('lodging',this)">לינה</button>
+  <button class="tab active" id="tab-guests-btn" onclick="window.switchTab('guests',this)">אישורי הגעה</button>
+  <button class="tab" id="tab-lodging-btn" onclick="window.switchTab('lodging',this)">לינה</button>
 </div>
 
 <div id="pane-guests">
@@ -112,12 +112,12 @@ function save(){
   renderStats();
 }
 
-function update(id,field,val){
+window.update=function(id,field,val){
   var g=guests.find(function(x){return x.id===id;});
   if(g){g[field]=val;save();}
 }
 
-function renderStats(){
+window.renderStats=function(){
   var coming=guests.filter(function(g){return g.status==='מגיע';});
   var nc=guests.filter(function(g){return g.status==='לא מגיע';});
   var unk=guests.filter(function(g){return g.status==='לא ענה';});
@@ -138,7 +138,7 @@ function renderStats(){
   });
 }
 
-function applyFilter(){
+window.applyFilter=function(){
   var search=document.getElementById('search').value.toLowerCase();
   var fg=document.getElementById('fgroup').value;
   var fs=document.getElementById('fstatus').value;
@@ -191,7 +191,7 @@ function applyFilter(){
   });
 }
 
-function switchTab(tab,btn){
+window.switchTab=function(tab,btn){
   document.getElementById('pane-guests').style.display=tab==='guests'?'block':'none';
   document.getElementById('pane-lodging').style.display=tab==='lodging'?'block':'none';
   document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('active');});
@@ -199,7 +199,7 @@ function switchTab(tab,btn){
   if(tab==='lodging')loadLodging();
 }
 
-async function loadLodging(){
+async window.loadLodging=async function(){
   var res=await sb.from('lodging').select('*').order('created_at',{ascending:false});
   var data=res.data||[];
   var total=data.reduce(function(s,r){return s+(parseInt(r.guests)||0);},0);
@@ -228,7 +228,7 @@ async function loadLodging(){
   var w=document.getElementById('ltable');w.innerHTML='';w.appendChild(table);
 }
 
-function exportCSV(){
+window.exportCSV=function(){
   var rows=guests.map(function(g){return[g.name,g.count,g.kids||0,g.phone,g.save_date?1:0,g.invitation?1:0,g.status,g.group].join(',');});
   var csv='﻿שם,אנשים,ילדים,טלפון,STD,הזמנה,סטטוס,קבוצה
 '+rows.join('
@@ -237,8 +237,10 @@ function exportCSV(){
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='snd_guests.csv';a.click();
 }
 
-renderStats();
-applyFilter();
+document.addEventListener("DOMContentLoaded", function(){
+  renderStats();
+  applyFilter();
+});
 </script>
 </body>
 </html>
