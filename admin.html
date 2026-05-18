@@ -304,11 +304,7 @@ function renderTable() {
           if (newGroup && newGroup.trim()) {
             newGroup = newGroup.trim();
             addCustomGroup(newGroup);
-            updateGuest(id, 'group', newGroup);
-            var newOpt = document.createElement('option');
-            newOpt.value = newGroup; newOpt.textContent = newGroup; newOpt.selected = true;
-            s.insertBefore(newOpt, s.firstChild);
-            s.value = newGroup;
+            updateGuest(id, 'group', newGroup).then(function() { renderTable(); });
           } else {
             s.value = s.dataset.prev || '';
           }
