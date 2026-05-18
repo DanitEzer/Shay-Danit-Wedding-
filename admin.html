@@ -177,6 +177,24 @@ function sortBy(col) {
   renderTable();
 }
 
+var customGroups = [];
+
+function getGroupList() {
+  var base = ['חברים','משפחה','עבודה','משפחת אייזנר','משפחת עזר','חברים של שי','אופיר','עדי','אלעד','שיר'];
+  return base.concat(customGroups.filter(function(g) { return base.indexOf(g) === -1; }));
+}
+
+function addCustomGroup(name) {
+  if (customGroups.indexOf(name) === -1) {
+    customGroups.push(name);
+    // Add to filter select
+    var fgroup = document.getElementById('fgroup');
+    var opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    fgroup.insertBefore(opt, fgroup.lastElementChild);
+  }
+}
+
 function getFiltered() {
   var search = document.getElementById('search').value.toLowerCase();
   var fg = document.getElementById('fgroup').value;
@@ -262,40 +280,45 @@ function renderTable() {
     };
 
     var makeGroup = function(val) {
-      var wrap = document.createElement('div');
-      wrap.style.cssText = 'display:flex;gap:4px;align-items:center;';
+      var allGroups = getGroupList();
       var sel = document.createElement('select');
       sel.className = 'inline';
-      sel.style.maxWidth = '80px';
-      var customOpt = document.createElement('option');
-      customOpt.value = '__custom__'; customOpt.textContent = '+ חדשה';
-      groups.forEach(function(grp) {
+      sel.style.maxWidth = '140px';
+      allGroups.forEach(function(grp) {
         var opt = document.createElement('option');
         opt.value = grp; opt.textContent = grp;
         if (val === grp) opt.selected = true;
         sel.appendChild(opt);
       });
+      var customOpt = document.createElement('option');
+      customOpt.value = '__custom__'; customOpt.textContent = '+ קבוצה חדשה';
       sel.appendChild(customOpt);
-      var input = document.createElement('input');
-      input.type = 'text'; input.className = 'group-input';
-      input.placeholder = 'קבוצה חדשה';
-      input.style.display = 'none';
-      input.value = groups.includes(val) ? '' : val;
-      if (!groups.includes(val) && val) input.style.display = 'inline';
-      sel.onchange = (function(id, inp) { return function() {
+      if (!allGroups.includes(val) && val) {
+        var existOpt = document.createElement('option');
+        existOpt.value = val; existOpt.textContent = val; existOpt.selected = true;
+        sel.insertBefore(existOpt, sel.firstChild);
+      }
+      sel.onchange = (function(id, s) { return function() {
         if (this.value === '__custom__') {
-          inp.style.display = 'inline'; inp.focus();
+          var newGroup = prompt('שם הקבוצה החדשה:');
+          if (newGroup && newGroup.trim()) {
+            newGroup = newGroup.trim();
+            addCustomGroup(newGroup);
+            updateGuest(id, 'group', newGroup);
+            var newOpt = document.createElement('option');
+            newOpt.value = newGroup; newOpt.textContent = newGroup; newOpt.selected = true;
+            s.insertBefore(newOpt, s.firstChild);
+            s.value = newGroup;
+          } else {
+            s.value = s.dataset.prev || '';
+          }
         } else {
-          inp.style.display = 'none';
+          s.dataset.prev = this.value;
           updateGuest(id, 'group', this.value);
         }
-      }; })(g.id, input);
-      input.onblur = (function(id) { return function() {
-        if (this.value.trim()) updateGuest(id, 'group', this.value.trim());
-      }; })(g.id);
-      wrap.appendChild(sel);
-      wrap.appendChild(input);
-      return wrap;
+      }; })(g.id, sel);
+      sel.dataset.prev = val;
+      return sel;
     };
 
     var phone = g.phone || '';
