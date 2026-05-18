@@ -48,14 +48,14 @@ tr:hover td{background:rgba(212,88,26,.05)}
 </head>
 <body>
 
-<div class="pwd-screen" id="pwd-screen">
+<div class="pwd-screen" id="pwd-screen" style="display:none">
   <h2>&#127789; S<span>&</span>D FEST Admin</h2>
   <input type="password" id="pwd-input" placeholder="&#1505;&#1497;&#1505;&#1502;&#1492;">
   <button id="login-btn">&#1499;&#1504;&#1497;&#1505;&#1492;</button>
   <p class="err" id="pwd-err">&#1505;&#1497;&#1505;&#1502;&#1492; &#1513;&#1490;&#1493;&#1497;&#1492;</p>
 </div>
 
-<div class="admin" id="admin">
+<div class="admin" id="admin" style="display:block">
   <div class="topbar">
     <div class="topbar-logo">S<span>&</span>D FEST &#8212; &#1504;&#1497;&#1492;&#1493;&#1500;</div>
     <span class="saved-msg" id="saved-msg">&#10003; &#1504;&#1513;&#1502;&#1512;</span>
@@ -151,8 +151,7 @@ function saveState() {
 document.getElementById('login-btn').addEventListener('click', function() {
   var val = document.getElementById('pwd-input').value;
   if (val === PASSWORD) {
-    document.getElementById('pwd-screen').style.display = 'none';
-    document.getElementById('admin').style.display = 'block';
+    
     loadState();
     renderGuests(guests);
     updateStats();
