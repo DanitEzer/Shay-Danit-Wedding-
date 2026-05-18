@@ -50,6 +50,7 @@ select.inline{font-family:Rubik,sans-serif;font-size:.8rem;border:1px solid #ddd
 <div class="tabs">
   <button class="tab active" id="tab-btn-guests" onclick="showTab('guests')">אישורי הגעה</button>
   <button class="tab" id="tab-btn-lodging" onclick="showTab('lodging')">לינה</button>
+  <button class="tab" id="tab-btn-rsvp" onclick="showTab('rsvp')">בקשות <span id="rsvp-badge" style="background:#C03020;color:#fff;border-radius:20px;padding:1px 7px;font-size:.65rem;display:none">0</span></button>
 </div>
 
 <div id="pane-guests">
@@ -86,6 +87,13 @@ select.inline{font-family:Rubik,sans-serif;font-size:.8rem;border:1px solid #ddd
 <div id="pane-lodging" style="display:none">
   <div class="stats" id="lstats"></div>
   <div class="table-wrap" id="ltable"><div class="loading">טוען...</div></div>
+</div>
+
+<div id="pane-rsvp" style="display:none">
+  <div style="margin-bottom:1rem;font-family:Rubik,sans-serif;font-size:.85rem;color:#8B6A4A">
+    בקשות ממתינות לאישור — בחרי את האורח המתאים ולחצי אשר.
+  </div>
+  <div id="rsvp-list"><div class="loading">טוען...</div></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -328,12 +336,85 @@ function clearFilters() {
   renderTable();
 }
 
+async function loadRSVP() {
+  var res = await sb.from('rsvp_requests').select('*').eq('approved', false).order('created_at', {ascending: true});
+  var data = res.data || [];
+  
+  var badge = document.getElementById('rsvp-badge');
+  if (data.length > 0) { badge.style.display = 'inline'; badge.textContent = data.length; }
+  else { badge.style.display = 'none'; }
+
+  var wrap = document.getElementById('rsvp-list');
+  if (!data.length) { wrap.innerHTML = '<div class="loading">אין בקשות ממתינות 🎉</div>'; return; }
+
+  var table = document.createElement('table');
+  table.style.minWidth = '600px';
+  var thead = document.createElement('thead');
+  var hrow = document.createElement('tr');
+  ['שם', 'סטטוס', 'אנשים', 'הערה', 'תאריך', 'צמד ל', 'אשר'].forEach(function(h) {
+    var th = document.createElement('th'); th.textContent = h; hrow.appendChild(th);
+  });
+  thead.appendChild(hrow); table.appendChild(thead);
+
+  var tbody = document.createElement('tbody');
+  data.forEach(function(r) {
+    var tr = document.createElement('tr');
+
+    var guestSel = document.createElement('select');
+    guestSel.className = 'inline';
+    guestSel.style.maxWidth = '150px';
+    var defaultOpt = document.createElement('option');
+    defaultOpt.value = ''; defaultOpt.textContent = 'בחרי אורח...';
+    guestSel.appendChild(defaultOpt);
+    guests.forEach(function(g) {
+      var opt = document.createElement('option');
+      opt.value = g.id; opt.textContent = g.name + ' (' + g.group + ')';
+      guestSel.appendChild(opt);
+    });
+
+    var approveBtn = document.createElement('button');
+    approveBtn.className = 'btn';
+    approveBtn.textContent = '✓ אשר';
+    approveBtn.style.cssText = 'padding:4px 12px;font-size:.65rem;';
+    approveBtn.onclick = (function(rsvpId, sel, rsvpStatus) { return async function() {
+      var guestId = sel.value;
+      if (!guestId) { alert('בחרי אורח קודם'); return; }
+      await sb.from('rsvp_requests').update({approved: true, linked_guest_id: parseInt(guestId)}).eq('id', rsvpId);
+      await sb.from('guests').update({status: rsvpStatus}).eq('id', parseInt(guestId));
+      loadRSVP();
+      var g = guests.find(function(x) { return x.id === parseInt(guestId); });
+      if (g) { g.status = rsvpStatus; renderStats(); renderTable(); }
+      showSaved();
+    }; })(r.id, guestSel, r.status);
+
+    var d = new Date(r.created_at);
+    var dateStr = d.toLocaleDateString('he-IL') + ' ' + d.toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'});
+
+    [r.name, r.status, r.guests_count, r.notes||'-', dateStr, guestSel, approveBtn].forEach(function(v) {
+      var td = document.createElement('td');
+      if (v instanceof HTMLElement) td.appendChild(v);
+      else td.textContent = v;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  wrap.innerHTML = '';
+  var tableWrap = document.createElement('div');
+  tableWrap.className = 'table-wrap';
+  tableWrap.appendChild(table);
+  wrap.appendChild(tableWrap);
+}
+
 function showTab(tab) {
   document.getElementById('pane-guests').style.display = tab === 'guests' ? 'block' : 'none';
   document.getElementById('pane-lodging').style.display = tab === 'lodging' ? 'block' : 'none';
   document.getElementById('tab-btn-guests').classList.toggle('active', tab === 'guests');
   document.getElementById('tab-btn-lodging').classList.toggle('active', tab === 'lodging');
+  document.getElementById('tab-btn-rsvp').classList.toggle('active', tab === 'rsvp');
+  document.getElementById('pane-rsvp').style.display = tab === 'rsvp' ? 'block' : 'none';
   if (tab === 'lodging') loadLodging();
+  if (tab === 'rsvp') loadRSVP();
 }
 
 async function loadLodging() {
@@ -381,6 +462,15 @@ function exportCSV() {
 }
 
 init();
+
+// Check for pending RSVP requests
+async function checkRSVPBadge() {
+  var res = await sb.from('rsvp_requests').select('id').eq('approved', false);
+  var data = res.data || [];
+  var badge = document.getElementById('rsvp-badge');
+  if (data.length > 0) { badge.style.display = 'inline'; badge.textContent = data.length; }
+}
+checkRSVPBadge();
 </script>
 </body>
 </html>
