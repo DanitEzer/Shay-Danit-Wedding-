@@ -69,12 +69,13 @@ select.inline{font-family:Rubik,sans-serif;font-size:.8rem;border:1px solid #ddd
       <option>עדי</option>
       <option>אלעד</option>
       <option>שיר</option>
+      <option value="__uncertain__">טרם הוזמן</option>
     </select>
     <select id="fstatus" onchange="renderTable()">
       <option value="">כל הסטטוסים</option>
       <option>מגיע</option>
       <option>לא מגיע</option>
-      <option>לא ענה</option>
+      <option>טרם נשאל</option>
       <option>לא בטוח</option>
     </select>
     <button class="btn" onclick="clearFilters()">נקה סינון</button>
@@ -145,7 +146,7 @@ function filterByStatus(status) {
 function renderStats() {
   var coming = guests.filter(function(g) { return g.status === 'מגיע'; });
   var nc = guests.filter(function(g) { return g.status === 'לא מגיע'; });
-  var unk = guests.filter(function(g) { return g.status === 'לא ענה'; });
+  var unk = guests.filter(function(g) { return g.status === 'לא ענה' || g.status === 'טרם נשאל'; });
   var total = guests.reduce(function(s, g) { return s + (g.count || 0); }, 0);
   var cp = coming.reduce(function(s, g) { return s + (g.count || 0); }, 0);
   var inv = guests.filter(function(g) { return g.invitation; }).length;
@@ -154,7 +155,7 @@ function renderStats() {
     {num: guests.length + ' / ' + total, label: 'הזמנות / אנשים', color: '#D4581A', filter: null},
     {num: cp, label: 'מגיעים (אנשים)', color: '#4BAE8A', filter: 'מגיע'},
     {num: nc.length, label: 'לא מגיעים', color: '#C03020', filter: 'לא מגיע'},
-    {num: unk.length, label: 'לא ענו', color: '#8B6A4A', filter: 'לא ענה'},
+    {num: unk.length, label: 'טרם נשאלו', color: '#8B6A4A', filter: 'טרם נשאל'},
     {num: inv, label: 'קיבלו הזמנה', color: '#E8A820', filter: null},
   ];
 
@@ -182,7 +183,8 @@ function getFiltered() {
   var fs = document.getElementById('fstatus').value;
   return guests.filter(function(g) {
     if (search && g.name.toLowerCase().indexOf(search) === -1) return false;
-    if (fg && g.group !== fg) return false;
+    if (fg === '__uncertain__' && !g.uncertain) return false;
+    if (fg && fg !== '__uncertain__' && g.group !== fg) return false;
     if (fs && g.status !== fs) return false;
     return true;
   });
@@ -250,7 +252,7 @@ function renderTable() {
     var makeStatus = function(val) {
       var sel = document.createElement('select');
       sel.className = 'inline';
-      [['מגיע','✓ מגיע'],['לא מגיע','✗ לא מגיע'],['לא ענה','? לא ענה'],['לא בטוח','~ לא בטוח']].forEach(function(o) {
+      [['מגיע','✓ מגיע'],['לא מגיע','✗ לא מגיע'],['טרם נשאל','⏳ טרם נשאל'],['לא בטוח','~ לא בטוח']].forEach(function(o) {
         var opt = document.createElement('option');
         opt.value = o[0]; opt.textContent = o[1];
         if (val === o[0]) opt.selected = true;
@@ -301,7 +303,7 @@ function renderTable() {
     if (phone && !phone.startsWith('0')) phone = '0' + phone;
 
     var cells = [
-      {content: g.name + (g.uncertain ? ' ?' : ''), bold: true},
+      {editable: true, field: 'name', val: g.name + (g.uncertain ? ' ?' : ''), bold: true},
       {content: g.count, center: true},
       {sel: makeBool(g.save_date, 'save_date'), center: true},
       {sel: makeBool(g.invitation, 'invitation'), center: true},
@@ -313,7 +315,27 @@ function renderTable() {
     cells.forEach(function(c) {
       var td = document.createElement('td');
       if (c.sel) td.appendChild(c.sel);
-      else { td.textContent = c.content; if (c.bold) td.style.fontWeight = '500'; }
+      else if (c.editable) {
+        var span = document.createElement('span');
+        span.textContent = c.val;
+        span.style.cssText = 'cursor:pointer;border-bottom:1px dashed #ccc;font-weight:' + (c.bold?'500':'400');
+        span.title = 'לחץ לעריכה';
+        span.onclick = (function(id, field, s) { return function() {
+          var input = document.createElement('input');
+          input.type = 'text'; input.value = s.textContent;
+          input.style.cssText = 'font-family:Rubik,sans-serif;font-size:.9rem;border:1px solid #D4581A;border-radius:4px;padding:2px 6px;width:150px;direction:rtl;';
+          td.replaceChild(input, s);
+          input.focus();
+          input.onblur = function() {
+            var newVal = this.value.trim();
+            if (newVal && newVal !== s.textContent) { updateGuest(id, field, newVal); s.textContent = newVal; }
+            td.replaceChild(s, input);
+          };
+          input.onkeydown = function(e) { if (e.key==='Enter') this.blur(); if (e.key==='Escape') { td.replaceChild(s, input); } };
+        }; })(g.id, c.field, span);
+        td.appendChild(span);
+      }
+      else { td.textContent = c.content !== undefined ? c.content : ''; if (c.bold) td.style.fontWeight = '500'; }
       if (c.center) td.style.textAlign = 'center';
       if (c.ltr) { td.style.direction = 'ltr'; td.style.textAlign = 'left'; }
       if (c.muted) td.style.color = '#8B6A4A';
