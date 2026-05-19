@@ -128,6 +128,7 @@ var SB_URL = 'https://mvuachvkxkqwbpbzpczk.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12dWFjaHZreGtxd2JwYnpwY3prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDMwMzIsImV4cCI6MjA5MjIxOTAzMn0.FIOx0kVsjY7UzchC7OJDGVr3fUBjjVZ4pfwBA8JyCJU';
 var sb = supabase.createClient(SB_URL, SB_KEY);
 var guests = [];
+var lodgingData = [];
 var sortCol = 'id';
 var sortAsc = true;
 var activeStatFilter = null;
@@ -136,6 +137,8 @@ async function init() {
   var res = await sb.from('guests').select('*').order('id');
   if (res.error) { document.getElementById('gtable').innerHTML = '<div class="loading">שגיאה בטעינת נתונים</div>'; return; }
   guests = res.data;
+  var lRes = await sb.from('lodging').select('name,guests,type');
+  lodgingData = lRes.data || [];
   renderStats();
   renderTable();
 }
@@ -250,9 +253,11 @@ function renderTable() {
   var cols = [
     {label: 'שם', key: 'name'},
     {label: '#', key: 'count', center: true},
+    {label: 'ילדים', key: 'kids', center: true},
     {label: 'הזמנה', key: 'invitation', center: true},
     {label: 'סטטוס', key: 'status'},
     {label: 'קבוצה', key: 'group'},
+    {label: 'לינה', key: 'lodging', center: true},
     {label: 'טלפון', key: 'phone', ltr: true},
   ];
 
@@ -345,12 +350,21 @@ function renderTable() {
     var phone = g.phone || '';
     if (phone && !phone.startsWith('0')) phone = '0' + phone;
 
+    // Find lodging for this guest
+    var gLodging = lodgingData.filter(function(l) {
+      return l.name && g.name && l.name.trim().toLowerCase() === g.name.trim().toLowerCase();
+    });
+    var lodgingText = gLodging.length > 0 ? 'כן — ' + gLodging.reduce(function(s,l){return s+(parseInt(l.guests)||0);},0) : 'לא';
+    var lodgingColor = gLodging.length > 0 ? '#4BAE8A' : '#ccc';
+
     var cells = [
       {editable: true, field: 'name', val: g.name + (g.uncertain ? ' ?' : ''), bold: true},
-      {content: g.count, center: true},
+      {editable: true, field: 'count', val: String(g.count), center: true, numeric: true},
+      {editable: true, field: 'kids', val: String(g.kids || 0), center: true, numeric: true},
       {sel: makeBool(g.invitation, 'invitation'), center: true},
       {sel: makeStatus(g.status)},
       {sel: makeGroup(g.group)},
+      {content: lodgingText, center: true, style: 'color:' + lodgingColor + ';font-weight:500'},
       {editable: true, field: 'phone', val: phone, ltr: true, muted: true},
     ];
 
@@ -371,14 +385,14 @@ function renderTable() {
           input.focus();
           input.onblur = function() {
             var newVal = this.value.trim();
-            if (newVal && newVal !== s.textContent) { updateGuest(id, field, newVal); s.textContent = newVal; }
+            if (newVal !== null && newVal !== undefined && newVal !== s.textContent) { var finalVal = numeric ? parseInt(newVal)||0 : newVal; updateGuest(id, field, finalVal); s.textContent = String(finalVal); }
             td.replaceChild(s, input);
           };
           input.onkeydown = function(e) { if (e.key==='Enter') this.blur(); if (e.key==='Escape') { td.replaceChild(s, input); } };
-        }; })(g.id, c.field, span, c.ltr);
+        }; })(g.id, c.field, span, c.ltr, c.numeric);
         td.appendChild(span);
       }
-      else { td.textContent = c.content !== undefined ? c.content : ''; if (c.bold) td.style.fontWeight = '500'; }
+      else { td.textContent = c.content !== undefined ? c.content : ''; if (c.bold) td.style.fontWeight = '500'; if (c.style) td.style.cssText += ';' + c.style; }
       if (c.center) td.style.textAlign = 'center';
       if (c.ltr) { td.style.direction = 'ltr'; td.style.textAlign = 'left'; }
       if (c.muted) td.style.color = '#8B6A4A';
