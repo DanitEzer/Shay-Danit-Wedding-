@@ -359,8 +359,9 @@ function renderTable() {
       if (c.sel) td.appendChild(c.sel);
       else if (c.editable) {
         var span = document.createElement('span');
-        span.textContent = c.val;
-        span.style.cssText = 'cursor:pointer;border-bottom:1px dashed #ccc;font-weight:' + (c.bold?'500':'400');
+        var displayVal = c.val && c.val !== '-' && c.val !== '' ? c.val : '+ הוסף';
+        span.textContent = displayVal;
+        span.style.cssText = 'cursor:pointer;border-bottom:1px dashed #ccc;font-weight:' + (c.bold?'500':'400') + ';' + (displayVal === '+ הוסף' ? 'color:#D4581A;font-size:0.8rem;' : '');
         span.title = 'לחץ לעריכה';
         span.onclick = (function(id, field, s, ltr) { return function() {
           var input = document.createElement('input');
