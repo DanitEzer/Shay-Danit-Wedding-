@@ -413,6 +413,25 @@ function renderTable() {
       if (c.center) td.style.textAlign = 'center';
       if (c.ltr) { td.style.direction = 'ltr'; td.style.textAlign = 'left'; }
       if (c.muted) td.style.color = '#8B6A4A';
+      if (c.lodgingGuest !== undefined) {
+        td.style.cursor = 'pointer';
+        td.title = 'לחץ לעריכה';
+        (function(guest, lodging) {
+          td.onclick = function() {
+            var current = lodging.reduce(function(s,l){return s+(parseInt(l.guests)||0);},0);
+            var num = prompt('כמה אנשים ישנים? (0 להסרה)', current);
+            if (num === null) return;
+            num = parseInt(num) || 0;
+            if (num === 0 && lodging.length > 0) {
+              sb.from('lodging').delete().eq('name', guest.name).then(function() { init(); });
+            } else if (num > 0 && lodging.length > 0) {
+              sb.from('lodging').update({guests: num}).eq('name', guest.name).then(function() { init(); });
+            } else if (num > 0) {
+              sb.from('lodging').insert([{name: guest.name, guests: num, type: 'shared', notes: ''}]).then(function() { init(); });
+            }
+          };
+        })(c.lodgingGuest, c.lodgingData || []);
+      }
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
