@@ -373,7 +373,7 @@ function renderTable() {
       {sel: makeBool(g.invitation, 'invitation'), center: true},
       {sel: makeStatus(g.status)},
       {sel: makeGroup(g.group)},
-      {content: lodgingText, center: true, style: 'color:' + lodgingColor + ';font-weight:500;cursor:pointer', lodgingGuest: g},
+      {content: lodgingText, center: true, style: 'color:' + lodgingColor + ';font-weight:500;cursor:pointer', lodgingGuest: g, lodgingData: gLodging},
       {editable: true, field: 'phone', val: phone, ltr: true, muted: true},
     ];
 
