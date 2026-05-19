@@ -392,12 +392,20 @@ function renderTable() {
           input.style.cssText = 'font-family:Rubik,sans-serif;font-size:.9rem;border:1px solid #D4581A;border-radius:4px;padding:2px 6px;width:150px;direction:'+(ltr?'ltr':'rtl')+';';
           td.replaceChild(input, s);
           input.focus();
-          input.onblur = function() {
-            var newVal = this.value.trim();
-            if (newVal !== null && newVal !== undefined && newVal !== s.textContent) { var finalVal = numeric ? parseInt(newVal)||0 : newVal; updateGuest(id, field, finalVal); s.textContent = String(finalVal); }
-            td.replaceChild(s, input);
+          function saveInput() {
+            var newVal = input.value.trim();
+            var finalVal = numeric ? (parseInt(newVal)||0) : newVal;
+            if (newVal !== '' && String(finalVal) !== s.textContent) {
+              updateGuest(id, field, finalVal);
+              s.textContent = String(finalVal);
+            }
+            if (input.parentNode === td) td.replaceChild(s, input);
+          }
+          input.onblur = saveInput;
+          input.onkeydown = function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); saveInput(); }
+            if (e.key === 'Escape') { if (input.parentNode === td) td.replaceChild(s, input); }
           };
-          input.onkeydown = function(e) { if (e.key==='Enter') this.blur(); if (e.key==='Escape') { td.replaceChild(s, input); } };
         }; })(g.id, c.field, span, c.ltr, c.numeric);
         td.appendChild(span);
       }
