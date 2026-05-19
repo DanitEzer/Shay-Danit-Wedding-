@@ -382,35 +382,42 @@ function renderTable() {
       var td = document.createElement('td');
       if (c.sel) td.appendChild(c.sel);
       else if (c.editable) {
-        var span = document.createElement('span');
-        var displayVal = c.val && c.val !== '-' && c.val !== '' ? c.val : '+ הוסף';
-        span.textContent = displayVal;
-        span.style.cssText = 'cursor:pointer;border-bottom:1px dashed #ccc;font-weight:' + (c.bold?'500':'400') + ';' + (displayVal === '+ הוסף' ? 'color:#D4581A;font-size:0.8rem;' : '');
-        span.title = 'לחץ לעריכה';
-        span.onclick = (function(id, field, s, ltr) { return function() {
-          var input = document.createElement('input');
-          input.type = 'text'; input.value = s.textContent;
-          input.style.cssText = 'font-family:Rubik,sans-serif;font-size:.9rem;border:1px solid #D4581A;border-radius:4px;padding:2px 6px;width:150px;direction:'+(ltr?'ltr':'rtl')+';';
-          td.replaceChild(input, s);
-          input.focus();
-          var saving = false;
-          function saveInput() {
-            if (saving) return;
-            var newVal = input.value.trim();
-            if (!newVal) { if (input.parentNode === td) td.replaceChild(s, input); return; }
-            saving = true;
-            var finalVal = numeric ? (parseInt(newVal)||0) : newVal;
-            s.textContent = String(finalVal);
-            if (input.parentNode === td) td.replaceChild(s, input);
-            sb.from('guests').update((function(f,v){var u={};u[f]=v;return u;})(field, finalVal)).eq('id', id).then(function() { showSaved(); renderStats(); });
-          }
-          input.onblur = saveInput;
-          input.onkeydown = function(e) {
-            if (e.key === 'Enter') { e.preventDefault(); input.onblur = null; saveInput(); }
-            if (e.key === 'Escape') { if (input.parentNode === td) td.replaceChild(s, input); }
-          };
-        }; })(g.id, c.field, span, c.ltr, c.numeric);
-        td.appendChild(span);
+        (function(gid, field, val, bold, ltr, numeric, td) {
+          var span = document.createElement('span');
+          var displayVal = (val !== undefined && val !== null && String(val) !== '' && val !== '-') ? String(val) : (numeric ? '0' : '+ הוסף');
+          span.textContent = displayVal;
+          span.style.cssText = 'cursor:pointer;border-bottom:1px dashed #ccc;font-weight:' + (bold?'500':'400') + ';' + (displayVal === '+ הוסף' ? 'color:#D4581A;font-size:0.8rem;' : '');
+          span.addEventListener('click', function() {
+            var input = document.createElement('input');
+            input.type = numeric ? 'number' : 'text';
+            input.value = span.textContent === '+ הוסף' ? '' : span.textContent;
+            input.style.cssText = 'font-family:Rubik,sans-serif;font-size:.9rem;border:1px solid #D4581A;border-radius:4px;padding:2px 6px;width:'+(numeric?'60px':'150px')+';direction:'+(ltr?'ltr':'rtl')+';outline:none;box-sizing:border-box;';
+            td.replaceChild(input, span);
+            input.focus();
+            input.select();
+            var done = false;
+            function doSave() {
+              if (done) return;
+              done = true;
+              var raw = input.value.trim();
+              if (raw !== '') {
+                var finalVal = numeric ? (parseInt(raw)||0) : raw;
+                span.textContent = String(finalVal);
+                var upd = {}; upd[field] = finalVal;
+                sb.from('guests').update(upd).eq('id', gid).then(function(r) {
+                  if (!r.error) { showSaved(); renderStats(); }
+                });
+              }
+              if (input.parentNode === td) td.replaceChild(span, input);
+            }
+            input.addEventListener('keydown', function(e) {
+              if (e.key === 'Enter') { e.preventDefault(); doSave(); }
+              if (e.key === 'Escape') { done = true; if (input.parentNode === td) td.replaceChild(span, input); }
+            });
+            input.addEventListener('blur', doSave);
+          });
+          td.appendChild(span);
+        })(g.id, c.field, c.val, c.bold, c.ltr, c.numeric, td);
       }
       else { td.textContent = c.content !== undefined ? c.content : ''; if (c.bold) td.style.fontWeight = '500'; if (c.style) td.style.cssText += ';' + c.style; }
       if (c.center) td.style.textAlign = 'center';
