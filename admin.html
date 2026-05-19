@@ -395,12 +395,10 @@ function renderTable() {
           input.focus();
           function saveInput() {
             var newVal = input.value.trim();
+            if (!newVal) { if (input.parentNode === td) td.replaceChild(s, input); return; }
             var finalVal = numeric ? (parseInt(newVal)||0) : newVal;
-            var currentVal = s.textContent.replace(' ?','').trim();
-            if (newVal !== '' && String(finalVal) !== currentVal) {
-              updateGuest(id, field, finalVal);
-              s.textContent = field === 'name' && g && g.uncertain ? String(finalVal) + ' ?' : String(finalVal);
-            }
+            updateGuest(id, field, finalVal);
+            s.textContent = String(finalVal);
             if (input.parentNode === td) td.replaceChild(s, input);
           }
           input.onblur = saveInput;
