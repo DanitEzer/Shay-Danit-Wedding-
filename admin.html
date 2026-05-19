@@ -75,7 +75,7 @@ select.inline{font-family:Rubik,sans-serif;font-size:.8rem;border:1px solid #ddd
 
 <div class="topbar">
   <div class="topbar-logo">S<span>&</span>D FEST</div>
-  <div style="display:flex;gap:.5rem"><button class="btn" id="compact-btn" onclick="toggleCompact()">📱 מובייל</button><button class="btn" onclick="exportCSV()">ייצא CSV</button></div>
+  <div style="display:flex;gap:.5rem"><button class="btn" onclick="openNewGuest()" style="background:#4BAE8A;color:#fff;border-color:#4BAE8A">+ אורח חדש</button><button class="btn" id="compact-btn" onclick="toggleCompact()">📱 מובייל</button><button class="btn" onclick="exportCSV()">ייצא CSV</button></div>
 </div>
 <div class="saved-msg" id="saved-msg">&#10003; נשמר</div>
 
@@ -185,6 +185,7 @@ function renderStats() {
   var total = guests.reduce(function(s, g) { return s + (g.count || 0); }, 0);
   var cp = coming.reduce(function(s, g) { return s + (g.count || 0); }, 0);
   var inv = guests.filter(function(g) { return g.invitation; }).length;
+  var totalKids = guests.reduce(function(s,g) { return s + (parseInt(g.kids)||0); }, 0);
 
   var items = [
     {num: guests.length + ' / ' + total, label: 'הזמנות / אנשים', color: '#D4581A', filter: null},
@@ -192,6 +193,7 @@ function renderStats() {
     {num: nc.length, label: 'לא מגיעים', color: '#C03020', filter: 'לא מגיע'},
     {num: unk.length, label: 'טרם נשאלו', color: '#8B6A4A', filter: 'טרם נשאל'},
     {num: inv, label: 'קיבלו הזמנה', color: '#E8A820', filter: null},
+    {num: totalKids, label: 'ילדים', color: '#6BB5D6', filter: null},
   ];
 
   var s = document.getElementById('stats');
@@ -371,7 +373,7 @@ function renderTable() {
       {sel: makeBool(g.invitation, 'invitation'), center: true},
       {sel: makeStatus(g.status)},
       {sel: makeGroup(g.group)},
-      {content: lodgingText, center: true, style: 'color:' + lodgingColor + ';font-weight:500'},
+      {content: lodgingText, center: true, style: 'color:' + lodgingColor + ';font-weight:500;cursor:pointer', lodgingGuest: g},
       {editable: true, field: 'phone', val: phone, ltr: true, muted: true},
     ];
 
@@ -547,6 +549,46 @@ function exportCSV() {
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'snd_guests.csv'; a.click();
 }
 
+
+function openNewGuest() {
+  var modal = document.getElementById('new-guest-modal');
+  modal.style.display = 'flex';
+  // Populate group select
+  var sel = document.getElementById('ng-group');
+  sel.innerHTML = '';
+  getGroupList().forEach(function(g) {
+    var opt = document.createElement('option'); opt.value = g; opt.textContent = g; sel.appendChild(opt);
+  });
+  document.getElementById('ng-name').focus();
+}
+
+function closeNewGuest() {
+  document.getElementById('new-guest-modal').style.display = 'none';
+}
+
+async function saveNewGuest() {
+  var name = document.getElementById('ng-name').value.trim();
+  if (!name) { alert('נא למלא שם'); return; }
+  var maxId = guests.reduce(function(m,g) { return Math.max(m, g.id||0); }, 0);
+  var newGuest = {
+    id: maxId + 1,
+    name: name,
+    count: parseInt(document.getElementById('ng-count').value) || 1,
+    kids: parseInt(document.getElementById('ng-kids').value) || 0,
+    phone: document.getElementById('ng-phone').value.trim(),
+    group: document.getElementById('ng-group').value,
+    status: document.getElementById('ng-status').value,
+    invitation: false,
+    uncertain: false,
+    notes: ''
+  };
+  var res = await sb.from('guests').insert([newGuest]);
+  if (res.error) { alert('שגיאה בשמירה'); return; }
+  closeNewGuest();
+  await init();
+  showSaved();
+}
+
 function toggleCompact() {
   var body = document.body;
   var btn = document.getElementById('compact-btn');
@@ -570,5 +612,47 @@ async function checkRSVPBadge() {
 }
 checkRSVPBadge();
 </script>
+
+<div id="new-guest-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:#FAF3E0;border:3px solid #3D1F08;border-radius:8px;padding:2rem;width:90%;max-width:400px;direction:rtl;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+      <h3 style="font-family:Righteous,cursive;color:#3D1F08;font-size:1.3rem">אורח חדש</h3>
+      <button onclick="closeNewGuest()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#8B6A4A">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0.8rem">
+      <div>
+        <label style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.2em;color:#D4581A;text-transform:uppercase;display:block;margin-bottom:3px">שם</label>
+        <input id="ng-name" type="text" placeholder="שם האורח" style="width:100%;padding:0.6rem;border:2px solid #3D1F08;border-radius:4px;font-family:Rubik,sans-serif;font-size:0.9rem;direction:rtl;outline:none">
+      </div>
+      <div>
+        <label style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.2em;color:#D4581A;text-transform:uppercase;display:block;margin-bottom:3px">כמה אנשים</label>
+        <input id="ng-count" type="number" value="1" min="1" style="width:100%;padding:0.6rem;border:2px solid #3D1F08;border-radius:4px;font-family:Rubik,sans-serif;font-size:0.9rem;outline:none">
+      </div>
+      <div>
+        <label style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.2em;color:#D4581A;text-transform:uppercase;display:block;margin-bottom:3px">ילדים</label>
+        <input id="ng-kids" type="number" value="0" min="0" style="width:100%;padding:0.6rem;border:2px solid #3D1F08;border-radius:4px;font-family:Rubik,sans-serif;font-size:0.9rem;outline:none">
+      </div>
+      <div>
+        <label style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.2em;color:#D4581A;text-transform:uppercase;display:block;margin-bottom:3px">טלפון</label>
+        <input id="ng-phone" type="text" placeholder="050-0000000" style="width:100%;padding:0.6rem;border:2px solid #3D1F08;border-radius:4px;font-family:Rubik,sans-serif;font-size:0.9rem;direction:ltr;outline:none">
+      </div>
+      <div>
+        <label style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.2em;color:#D4581A;text-transform:uppercase;display:block;margin-bottom:3px">קבוצה</label>
+        <select id="ng-group" style="width:100%;padding:0.6rem;border:2px solid #3D1F08;border-radius:4px;font-family:Rubik,sans-serif;font-size:0.9rem;direction:rtl;outline:none">
+        </select>
+      </div>
+      <div>
+        <label style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.2em;color:#D4581A;text-transform:uppercase;display:block;margin-bottom:3px">סטטוס</label>
+        <select id="ng-status" style="width:100%;padding:0.6rem;border:2px solid #3D1F08;border-radius:4px;font-family:Rubik,sans-serif;font-size:0.9rem;direction:rtl;outline:none">
+          <option value="טרם נשאל">טרם נשאל</option>
+          <option value="מגיע">מגיע</option>
+          <option value="לא מגיע">לא מגיע</option>
+          <option value="לא בטוח">לא בטוח</option>
+        </select>
+      </div>
+      <button onclick="saveNewGuest()" style="width:100%;padding:0.8rem;background:#4BAE8A;border:2px solid #3D1F08;border-radius:6px;font-family:Righteous,cursive;font-size:1rem;color:#fff;cursor:pointer;margin-top:0.5rem">שמור אורח</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
