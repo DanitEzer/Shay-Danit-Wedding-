@@ -829,7 +829,7 @@ async function submitRSVP() {
         <div class="fg" style="margin-top:1rem">
           <label style="font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;letter-spacing:0.25em;color:var(--orange);text-transform:uppercase;margin-bottom:0.4rem;display:block">סוג לינה</label>
           <select id="l-type" style="width:100%;padding:0.75rem 1rem;background:var(--cream);border:2px solid var(--brown);color:var(--brown);font-family:'Rubik',sans-serif;font-size:1rem;outline:none;direction:rtl;border-radius:4px">
-            <option value="shared">אוהל משותף (מזרונים מסופקים)</option>
+            <option value="shared" id="shared-option">אוהל משותף (מזרונים מסופקים)</option>
             <option value="private">אוהל פרטי שלנו</option>
             <option value="sky">כיפת השמיים ⭐</option>
           </select>
@@ -838,7 +838,10 @@ async function submitRSVP() {
           <label style="font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;letter-spacing:0.25em;color:var(--orange);text-transform:uppercase;margin-bottom:0.4rem;display:block">הערות</label>
           <textarea id="l-notes" placeholder="משהו שחשוב שנדע..." style="width:100%;padding:0.75rem 1rem;background:var(--cream);border:2px solid var(--brown);color:var(--brown);font-family:'Rubik',sans-serif;font-size:0.9rem;outline:none;direction:rtl;border-radius:4px;resize:vertical;min-height:70px"></textarea>
         </div>
-        <button onclick="submitLodging()" style="width:100%;padding:1rem;background:var(--orange);border:3px solid var(--brown);font-family:'Righteous',cursive;font-size:1.2rem;color:var(--cream);cursor:pointer;border-radius:6px;margin-top:0.5rem;transition:background 0.2s">אנחנו נשארים! 🏕️</button>
+        <div id="shared-counter" style="font-family:'Rubik',sans-serif;font-size:0.85rem;color:var(--brown2);margin-bottom:0.8rem;display:none">
+  <span id="shared-spots-text"></span>
+</div>
+<button onclick="submitLodging()" id="lodging-submit-btn" style="width:100%;padding:1rem;background:var(--orange);border:3px solid var(--brown);font-family:'Righteous',cursive;font-size:1.2rem;color:var(--cream);cursor:pointer;border-radius:6px;margin-top:0.5rem;transition:background 0.2s">אנחנו נשארים! 🏕️</button>
       </div>
       <div id="lodging-success" style="display:none;text-align:center;padding:2rem">
         <div style="font-size:2.5rem;margin-bottom:1rem">🌟</div>
@@ -997,6 +1000,42 @@ function toggleMenu(){
   document.getElementById('hamburger-btn').classList.toggle('open');
   document.getElementById('hamburger-menu').classList.toggle('open');
   document.getElementById('hamburger-overlay').classList.toggle('open');
+}
+</script>
+
+<script>
+var SHARED_CAPACITY = 70;
+
+async function checkSharedCapacity() {
+  var res = await sb.from('lodging').select('guests').eq('type', 'shared');
+  if (res.error || !res.data) return;
+  var taken = res.data.reduce(function(s, r) { return s + (parseInt(r.guests) || 0); }, 0);
+  var left = SHARED_CAPACITY - taken;
+  var counter = document.getElementById('shared-counter');
+  var spotsText = document.getElementById('shared-spots-text');
+  var sharedOption = document.getElementById('shared-option');
+  var submitBtn = document.getElementById('lodging-submit-btn');
+  var typeSelect = document.getElementById('l-type');
+
+  counter.style.display = 'block';
+
+  if (left <= 0) {
+    spotsText.innerHTML = '⚠️ האוהל המשותף מלא — אפשר להביא אוהל פרטי או לישון תחת כיפת השמיים 🌟';
+    spotsText.style.color = '#C03020';
+    if (sharedOption) sharedOption.disabled = true;
+    if (typeSelect.value === 'shared') typeSelect.value = 'private';
+  } else if (left <= 15) {
+    spotsText.innerHTML = '🏕️ נותרו רק <strong>' + left + '</strong> מקומות באוהל המשותף';
+    spotsText.style.color = '#D4581A';
+  } else {
+    spotsText.innerHTML = '🏕️ נותרו <strong>' + left + '</strong> מקומות באוהל המשותף';
+    spotsText.style.color = 'var(--brown2)';
+  }
+}
+
+// Run on page load
+if (document.getElementById('lodging-form')) {
+  checkSharedCapacity();
 }
 </script>
 </body>
