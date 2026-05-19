@@ -363,8 +363,9 @@ function renderTable() {
     var gLodging = lodgingData.filter(function(l) {
       return l.name && g.name && l.name.trim().toLowerCase() === g.name.trim().toLowerCase();
     });
-    var lodgingText = gLodging.length > 0 ? 'כן — ' + gLodging.reduce(function(s,l){return s+(parseInt(l.guests)||0);},0) : 'לא';
-    var lodgingColor = gLodging.length > 0 ? '#4BAE8A' : '#ccc';
+    var lodgingNum = gLodging.reduce(function(s,l){return s+(parseInt(l.guests)||0);},0);
+    var lodgingText = lodgingNum > 0 ? String(lodgingNum) : '—';
+    var lodgingColor = lodgingNum > 0 ? '#4BAE8A' : '#aaa';
 
     var cells = [
       {editable: true, field: 'name', val: g.name + (g.uncertain ? ' ?' : ''), bold: true},
@@ -395,9 +396,10 @@ function renderTable() {
           function saveInput() {
             var newVal = input.value.trim();
             var finalVal = numeric ? (parseInt(newVal)||0) : newVal;
-            if (newVal !== '' && String(finalVal) !== s.textContent) {
+            var currentVal = s.textContent.replace(' ?','').trim();
+            if (newVal !== '' && String(finalVal) !== currentVal) {
               updateGuest(id, field, finalVal);
-              s.textContent = String(finalVal);
+              s.textContent = field === 'name' && g && g.uncertain ? String(finalVal) + ' ?' : String(finalVal);
             }
             if (input.parentNode === td) td.replaceChild(s, input);
           }
@@ -416,21 +418,33 @@ function renderTable() {
       if (c.lodgingGuest !== undefined) {
         td.style.cursor = 'pointer';
         td.title = 'לחץ לעריכה';
-        (function(guest, lodging) {
+        (function(guest, lodging, cell) {
           td.onclick = function() {
             var current = lodging.reduce(function(s,l){return s+(parseInt(l.guests)||0);},0);
-            var num = prompt('כמה אנשים ישנים? (0 להסרה)', current);
-            if (num === null) return;
-            num = parseInt(num) || 0;
-            if (num === 0 && lodging.length > 0) {
-              sb.from('lodging').delete().eq('name', guest.name).then(function() { init(); });
-            } else if (num > 0 && lodging.length > 0) {
-              sb.from('lodging').update({guests: num}).eq('name', guest.name).then(function() { init(); });
-            } else if (num > 0) {
-              sb.from('lodging').insert([{name: guest.name, guests: num, type: 'shared', notes: ''}]).then(function() { init(); });
+            var span = cell;
+            var input = document.createElement('input');
+            input.type = 'number';
+            input.min = '0';
+            input.value = current;
+            input.style.cssText = 'width:50px;font-size:.85rem;border:1px solid #D4581A;border-radius:4px;padding:2px 4px;text-align:center;outline:none;';
+            td.innerHTML = '';
+            td.appendChild(input);
+            input.focus();
+            function saveLodging() {
+              var num = parseInt(input.value) || 0;
+              td.innerHTML = num > 0 ? '<span style="color:#4BAE8A;font-weight:500">' + num + '</span>' : '<span style="color:#aaa">—</span>';
+              if (num === 0 && lodging.length > 0) {
+                sb.from('lodging').delete().eq('name', guest.name);
+              } else if (num > 0 && lodging.length > 0) {
+                sb.from('lodging').update({guests: num}).eq('name', guest.name);
+              } else if (num > 0) {
+                sb.from('lodging').insert([{name: guest.name, guests: num, type: 'shared', notes: ''}]);
+              }
             }
+            input.onblur = saveLodging;
+            input.onkeydown = function(e) { if (e.key === 'Enter') { e.preventDefault(); saveLodging(); } if (e.key === 'Escape') { td.innerHTML = current > 0 ? '<span style="color:#4BAE8A;font-weight:500">'+current+'</span>' : '<span style="color:#aaa">—</span>'; } };
           };
-        })(c.lodgingGuest, c.lodgingData || []);
+        })(c.lodgingGuest, c.lodgingData || [], td.firstChild);
       }
       tr.appendChild(td);
     });
