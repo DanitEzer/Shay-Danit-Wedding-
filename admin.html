@@ -268,6 +268,7 @@ function renderTable() {
     {label: 'קבוצה', key: 'group'},
     {label: 'לינה', key: 'lodging', center: true},
     {label: 'טלפון', key: 'phone', ltr: true},
+    {label: '', key: 'delete'},
   ];
 
   var table = document.createElement('table');
@@ -376,6 +377,7 @@ function renderTable() {
       {sel: makeGroup(g.group)},
       {content: lodgingText, center: true, style: 'color:' + lodgingColor + ';font-weight:500;cursor:pointer', lodgingGuest: g, lodgingData: gLodging},
       {editable: true, field: 'phone', val: phone, ltr: true, muted: true},
+      {delete: true, gid: g.id, gname: g.name},
     ];
 
     cells.forEach(function(c) {
@@ -423,6 +425,21 @@ function renderTable() {
       if (c.center) td.style.textAlign = 'center';
       if (c.ltr) { td.style.direction = 'ltr'; td.style.textAlign = 'left'; }
       if (c.muted) td.style.color = '#8B6A4A';
+      if (c.delete) {
+        var delBtn = document.createElement('button');
+        delBtn.textContent = '✕';
+        delBtn.style.cssText = 'background:none;border:1px solid #C03020;color:#C03020;border-radius:4px;padding:2px 7px;cursor:pointer;font-size:.75rem;';
+        delBtn.title = 'מחק רשומה';
+        (function(gid, gname) {
+          delBtn.onclick = function() {
+            if (!confirm('למחוק את ' + gname + '?')) return;
+            sb.from('guests').delete().eq('id', gid).then(function(r) {
+              if (!r.error) { guests = guests.filter(function(x){return x.id!==gid;}); renderStats(); renderTable(); showSaved(); }
+            });
+          };
+        })(c.gid, c.gname);
+        td.appendChild(delBtn);
+      }
       if (c.lodgingGuest !== undefined) {
         td.style.cursor = 'pointer';
         td.title = 'לחץ לעריכה';
