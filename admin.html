@@ -108,6 +108,7 @@ select.inline:focus{border-color:var(--accent)}
 <div class="tabs">
   <button class="tab active" id="tab-btn-guests" onclick="showTab('guests')">אישורי הגעה</button>
   <button class="tab" id="tab-btn-lodging" onclick="showTab('lodging')">לינה</button>
+  <button class="tab" id="tab-btn-history" onclick="showTab('history')">היסטוריה</button>
   <button class="tab" id="tab-btn-rsvp" onclick="showTab('rsvp')">בקשות <span id="rsvp-badge" style="background:#C03020;color:#fff;border-radius:20px;padding:1px 7px;font-size:.65rem;display:none">0</span></button>
 </div>
 
@@ -133,6 +134,14 @@ select.inline:focus{border-color:var(--accent)}
 <div id="pane-lodging" style="display:none">
   <div class="stats" id="lstats"></div>
   <div class="table-wrap" id="ltable"><div class="loading">טוען...</div></div>
+</div>
+
+<div id="pane-history" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <span style="font-family:Barlow Condensed,sans-serif;font-size:.7rem;letter-spacing:.15em;color:var(--text3);text-transform:uppercase">כל השינויים האחרונים</span>
+    <button class="btn" onclick="loadHistory()">🔄 רענן</button>
+  </div>
+  <div class="table-wrap" id="history-table"><div class="loading">טוען...</div></div>
 </div>
 
 <div id="pane-rsvp" style="display:none">
@@ -188,13 +197,27 @@ function isEditMode() {
   return !document.body.classList.contains('edit-locked');
 }
 
+
+async function logAudit(guestId, guestName, field, oldValue, newValue, action) {
+  await sb.from('audit_log').insert([{
+    guest_id: guestId ? parseInt(guestId) : null,
+    guest_name: guestName || '',
+    field: field || '',
+    old_value: oldValue !== undefined && oldValue !== null ? String(oldValue) : '',
+    new_value: newValue !== undefined && newValue !== null ? String(newValue) : '',
+    action: action || 'update'
+  }]);
+}
+
 async function updateGuest(id, field, val) {
   if (!isEditMode()) return;
+  var g = guests.find(function(x) { return x.id === id; });
+  var oldVal = g ? g[field] : '';
   var update = {};
   update[field] = val;
-  await sb.from('guests').update(update).eq('id', id);
-  var g = guests.find(function(x) { return x.id === id; });
+  await sb.from('guests').update(update).eq('id', parseInt(id));
   if (g) g[field] = val;
+  logAudit(id, g ? g.name : '', field, oldVal, val, 'update');
   showSaved();
   renderStats();
 }
@@ -472,7 +495,7 @@ function renderTable() {
           delBtn.onclick = function() {
             if (!confirm('למחוק את ' + gname + '?')) return;
             sb.from('guests').delete().eq('id', parseInt(gid)).then(function(r) {
-              if (!r.error) { guests = guests.filter(function(x){return x.id!==gid;}); renderStats(); renderTable(); showSaved(); }
+              if (!r.error) { logAudit(gid, gname, '', '', '', 'delete'); guests = guests.filter(function(x){return x.id!==gid;}); renderStats(); renderTable(); showSaved(); }
             });
           };
         })(c.gid, c.gname);
@@ -531,6 +554,70 @@ function clearFilters() {
   activeStatFilter = null;
   renderStats();
   renderTable();
+}
+
+
+async function loadHistory() {
+  var res = await sb.from('audit_log').select('*').order('created_at', {ascending: false}).limit(200);
+  var data = res.data || [];
+  var wrap = document.getElementById('history-table');
+  if (!data.length) { wrap.innerHTML = '<div class="loading">אין היסטוריה עדיין</div>'; return; }
+
+  var actionLabels = {update: 'עריכה', delete: 'מחיקה', insert: 'הוספה'};
+  var fieldLabels = {name:'שם', count:'אנשים', kids:'ילדים', phone:'טלפון', status:'סטטוס', group:'קבוצה', invitation:'הזמנה', save_date:'STD', notes:'הערות'};
+
+  var table = document.createElement('table');
+  var thead = document.createElement('thead');
+  var hrow = document.createElement('tr');
+  ['תאריך', 'אורח', 'פעולה', 'שדה', 'מלפני', 'לאחר', 'שחזור'].forEach(function(h) {
+    var th = document.createElement('th'); th.textContent = h; hrow.appendChild(th);
+  });
+  thead.appendChild(hrow); table.appendChild(thead);
+
+  var tbody = document.createElement('tbody');
+  data.forEach(function(r) {
+    var tr = document.createElement('tr');
+    var d = new Date(r.created_at);
+    var dateStr = d.toLocaleDateString('he-IL') + ' ' + d.toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'});
+    var actionLabel = actionLabels[r.action] || r.action;
+    var fieldLabel = fieldLabels[r.field] || r.field;
+
+    var restoreBtn = '';
+    if (r.action === 'update' && r.guest_id && r.field) {
+      var btn = document.createElement('button');
+      btn.className = 'btn';
+      btn.textContent = 'שחזר';
+      btn.style.cssText = 'padding:2px 8px;font-size:.6rem;';
+      (function(gid, gname, field, oldVal) {
+        btn.onclick = async function() {
+          if (!isEditMode()) { alert('עברי למצב עריכה קודם'); return; }
+          if (!confirm('לשחזר ' + fieldLabels[field] + ' של ' + gname + ' ל: ' + oldVal + '?')) return;
+          await updateGuest(gid, field, oldVal);
+          loadHistory();
+        };
+      })(r.guest_id, r.guest_name, r.field, r.old_value);
+      var tdBtn = document.createElement('td');
+      tdBtn.appendChild(btn);
+      [dateStr, r.guest_name, actionLabel, fieldLabel, r.old_value||'—', r.new_value||'—'].forEach(function(v, i) {
+        var td = document.createElement('td');
+        td.textContent = v;
+        if (i === 2) td.style.color = r.action==='delete'?'var(--red)':r.action==='insert'?'var(--green)':'var(--text2)';
+        tr.appendChild(td);
+      });
+      tr.appendChild(tdBtn);
+    } else {
+      [dateStr, r.guest_name, actionLabel, fieldLabel, r.old_value||'—', r.new_value||'—', '—'].forEach(function(v, i) {
+        var td = document.createElement('td');
+        td.textContent = v;
+        if (i === 2) td.style.color = r.action==='delete'?'var(--red)':r.action==='insert'?'var(--green)':'var(--text2)';
+        tr.appendChild(td);
+      });
+    }
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  wrap.innerHTML = '';
+  wrap.appendChild(table);
 }
 
 async function loadRSVP() {
@@ -610,6 +697,9 @@ function showTab(tab) {
   document.getElementById('tab-btn-lodging').classList.toggle('active', tab === 'lodging');
   document.getElementById('tab-btn-rsvp').classList.toggle('active', tab === 'rsvp');
   document.getElementById('pane-rsvp').style.display = tab === 'rsvp' ? 'block' : 'none';
+  document.getElementById('tab-btn-history').classList.toggle('active', tab === 'history');
+  document.getElementById('pane-history').style.display = tab === 'history' ? 'block' : 'none';
+  if (tab === 'history') loadHistory();
   if (tab === 'lodging') loadLodging();
   if (tab === 'rsvp') loadRSVP();
 }
@@ -695,6 +785,7 @@ async function saveNewGuest() {
   };
   var res = await sb.from('guests').insert([newGuest]);
   if (res.error) { alert('שגיאה בשמירה'); return; }
+  logAudit(newGuest.id, newGuest.name, '', '', JSON.stringify(newGuest), 'insert');
   closeNewGuest();
   await init();
   showSaved();
