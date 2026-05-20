@@ -85,6 +85,13 @@ select.inline:focus{border-color:var(--accent)}
 .compact td,.compact th{padding:4px 5px}
 .compact select.inline{font-size:11px;padding:2px 3px;max-width:90px}
 .compact .stat-num{font-size:1.2rem}
+.edit-locked .btn-green{display:none}
+.edit-locked select.inline{pointer-events:none;opacity:0.7}
+.edit-locked span[title="לחץ לעריכה"]{pointer-events:none;border-bottom:none;cursor:default}
+.edit-locked .del-btn{display:none}
+.edit-locked td[title="לחץ לעריכה"]{pointer-events:none;cursor:default}
+.lock-btn{position:fixed;bottom:1.5rem;left:1.5rem;z-index:999;background:var(--bg2);border:0.5px solid var(--border);color:var(--text2);padding:.5rem 1rem;border-radius:20px;font-family:Barlow Condensed,sans-serif;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer}
+.lock-btn.unlocked{border-color:#2c7a4b;color:#2c7a4b}
 </style>
 </head>
 <body>
@@ -447,6 +454,7 @@ function renderTable() {
       if (c.delete) {
         var delBtn = document.createElement('button');
         delBtn.textContent = '✕';
+        delBtn.className = 'del-btn';
         delBtn.style.cssText = 'background:none;border:1px solid #C03020;color:#C03020;border-radius:4px;padding:2px 7px;cursor:pointer;font-size:.75rem;';
         delBtn.title = 'מחק רשומה';
         (function(gid, gname) {
@@ -678,6 +686,46 @@ async function saveNewGuest() {
   showSaved();
 }
 
+var EDIT_PASSWORD = 'ניקניק';
+
+function initEditMode() {
+  var saved = localStorage.getItem('snd_edit_unlocked');
+  if (saved === '1') {
+    setEditMode(true);
+  } else {
+    setEditMode(false);
+  }
+}
+
+function setEditMode(unlocked) {
+  var btn = document.getElementById('lock-btn');
+  if (unlocked) {
+    document.body.classList.remove('edit-locked');
+    btn.textContent = '🔓 מצב עריכה';
+    btn.classList.add('unlocked');
+  } else {
+    document.body.classList.add('edit-locked');
+    btn.textContent = '🔒 צפייה בלבד';
+    btn.classList.remove('unlocked');
+  }
+}
+
+function toggleEdit() {
+  var isLocked = document.body.classList.contains('edit-locked');
+  if (isLocked) {
+    var pwd = prompt('סיסמה לעריכה:');
+    if (pwd === EDIT_PASSWORD) {
+      localStorage.setItem('snd_edit_unlocked', '1');
+      setEditMode(true);
+    } else if (pwd !== null) {
+      alert('סיסמה שגויה');
+    }
+  } else {
+    localStorage.removeItem('snd_edit_unlocked');
+    setEditMode(false);
+  }
+}
+
 function toggleDarkMode() {
   document.body.classList.toggle('dark-mode');
   var btn = document.getElementById('dark-btn');
@@ -697,6 +745,7 @@ function toggleCompact() {
 }
 
 init();
+initEditMode();
 
 // Check for pending RSVP requests
 async function checkRSVPBadge() {
@@ -707,6 +756,8 @@ async function checkRSVPBadge() {
 }
 checkRSVPBadge();
 </script>
+
+<button class="lock-btn" id="lock-btn" onclick="toggleEdit()">🔒 צפייה בלבד</button>
 
 <div id="new-guest-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center">
   <div style="background:#FAF3E0;border:3px solid #3D1F08;border-radius:8px;padding:2rem;width:90%;max-width:400px;direction:rtl;max-height:90vh;overflow-y:auto">
