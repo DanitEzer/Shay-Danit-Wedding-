@@ -199,7 +199,7 @@ function isEditMode() {
 
 
 async function logAudit(guestId, guestName, field, oldValue, newValue, action) {
-  await sb.from('audit_log').insert([{
+  var res = await sb.from('audit_log').insert([{
     guest_id: guestId ? parseInt(guestId) : null,
     guest_name: guestName || '',
     field: field || '',
@@ -207,6 +207,7 @@ async function logAudit(guestId, guestName, field, oldValue, newValue, action) {
     new_value: newValue !== undefined && newValue !== null ? String(newValue) : '',
     action: action || 'update'
   }]);
+  if (res.error) console.error('Audit log error:', res.error);
 }
 
 async function updateGuest(id, field, val) {
@@ -806,12 +807,10 @@ function setEditMode(unlocked) {
   var btn = document.getElementById('lock-btn');
   if (unlocked) {
     document.body.classList.remove('edit-locked');
-    btn.textContent = '🔓 מצב עריכה';
-    btn.classList.add('unlocked');
+    if (btn) { btn.textContent = '🔓 מצב עריכה'; btn.classList.add('unlocked'); }
   } else {
     document.body.classList.add('edit-locked');
-    btn.textContent = '🔒 צפייה בלבד';
-    btn.classList.remove('unlocked');
+    if (btn) { btn.textContent = '🔒 צפייה בלבד'; btn.classList.remove('unlocked'); }
   }
 }
 
@@ -850,7 +849,7 @@ function toggleCompact() {
 }
 
 init();
-initEditMode();
+document.addEventListener("DOMContentLoaded", function() { initEditMode(); });
 
 // Check for pending RSVP requests
 async function checkRSVPBadge() {
