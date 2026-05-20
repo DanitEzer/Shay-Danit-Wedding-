@@ -184,7 +184,12 @@ function showSaved() {
   setTimeout(function() { m.style.opacity = '0'; }, 1500);
 }
 
+function isEditMode() {
+  return !document.body.classList.contains('edit-locked');
+}
+
 async function updateGuest(id, field, val) {
+  if (!isEditMode()) return;
   var update = {};
   update[field] = val;
   await sb.from('guests').update(update).eq('id', id);
@@ -430,6 +435,7 @@ function renderTable() {
             input.select();
             var done = false;
             function doSave() {
+              if (!isEditMode()) { if (input.parentNode === td) td.replaceChild(span, input); return; }
               if (done) return;
               done = true;
               var raw = input.value.trim();
@@ -492,6 +498,7 @@ function renderTable() {
             td.appendChild(input);
             input.focus();
             function saveLodging() {
+              if (!isEditMode()) return;
               var num = parseInt(input.value) || 0;
               td.innerHTML = num > 0 ? '<span style="color:#4BAE8A;font-weight:500">' + num + '</span>' : '<span style="color:#aaa">—</span>';
               if (num === 0 && lodging.length > 0) {
@@ -669,6 +676,7 @@ function closeNewGuest() {
 }
 
 async function saveNewGuest() {
+  if (!isEditMode()) return;
   var name = document.getElementById('ng-name').value.trim();
   if (!name) { alert('נא למלא שם'); return; }
   var maxId = guests.reduce(function(m,g) { return Math.max(m, g.id||0); }, 0);
