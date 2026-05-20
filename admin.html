@@ -443,7 +443,7 @@ function renderTable() {
                 var finalVal = numeric ? (parseInt(raw)||0) : raw;
                 span.textContent = String(finalVal);
                 var upd = {}; upd[field] = finalVal;
-                sb.from('guests').update(upd).eq('id', gid).then(function(r) {
+                sb.from('guests').update(upd).eq('id', parseInt(gid)).then(function(r) {
                   if (!r.error) { showSaved(); renderStats(); }
                 });
               }
@@ -471,7 +471,7 @@ function renderTable() {
         (function(gid, gname) {
           delBtn.onclick = function() {
             if (!confirm('למחוק את ' + gname + '?')) return;
-            sb.from('guests').delete().eq('id', gid).then(function(r) {
+            sb.from('guests').delete().eq('id', parseInt(gid)).then(function(r) {
               if (!r.error) { guests = guests.filter(function(x){return x.id!==gid;}); renderStats(); renderTable(); showSaved(); }
             });
           };
@@ -679,7 +679,8 @@ async function saveNewGuest() {
   if (!isEditMode()) return;
   var name = document.getElementById('ng-name').value.trim();
   if (!name) { alert('נא למלא שם'); return; }
-  var maxId = guests.reduce(function(m,g) { return Math.max(m, g.id||0); }, 0);
+  var maxRes = await sb.from('guests').select('id').order('id', {ascending:false}).limit(1);
+  var maxId = (maxRes.data && maxRes.data.length > 0) ? maxRes.data[0].id : 0;
   var newGuest = {
     id: maxId + 1,
     name: name,
