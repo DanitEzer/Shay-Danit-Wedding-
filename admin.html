@@ -178,9 +178,6 @@ async function init() {
   var uncertainOpt = document.createElement('option');
   uncertainOpt.value = '__uncertain__'; uncertainOpt.textContent = 'טרם הוזמן';
   fgroup.appendChild(uncertainOpt);
-  var invitedOpt = document.createElement('option');
-  invitedOpt.value = '__invited__'; invitedOpt.textContent = 'קיבלו הזמנה';
-  fgroup.appendChild(invitedOpt);
   var lRes = await sb.from('lodging').select('name,guests,type');
   lodgingData = lRes.data || [];
   renderStats();
@@ -241,7 +238,6 @@ function renderStats() {
   var unk = guests.filter(function(g) { return g.status === 'לא ענה' || g.status === 'טרם נשאל'; });
   var total = guests.reduce(function(s, g) { return s + (g.count || 0); }, 0);
   var cp = coming.reduce(function(s, g) { return s + (g.count || 0); }, 0);
-  var inv = guests.filter(function(g) { return g.invitation; }).length;
   var totalKids = guests.filter(function(g){return g.status==='מגיע';}).reduce(function(s,g) { return s + (parseInt(g.kids)||0); }, 0);
 
   var items = [
@@ -249,7 +245,6 @@ function renderStats() {
     {num: cp, label: 'מגיעים (אנשים)', color: '#4BAE8A', filter: 'מגיע'},
     {num: nc.length, label: 'לא מגיעים', color: '#C03020', filter: 'לא מגיע'},
     {num: unk.length, label: 'טרם נשאלו', color: '#8B6A4A', filter: 'טרם נשאל'},
-    {num: inv, label: 'קיבלו הזמנה', color: '#E8A820', filter: '__invited__'},
     {num: totalKids, label: 'ילדים', color: '#6BB5D6', filter: null},
   ];
 
@@ -296,8 +291,7 @@ function getFiltered() {
   return guests.filter(function(g) {
     if (search && g.name.toLowerCase().indexOf(search) === -1) return false;
     if (fg === '__uncertain__' && !g.uncertain) return false;
-    if (fg === '__invited__' && !g.invitation) return false;
-    if (fg && fg !== '__uncertain__' && fg !== '__invited__' && g.group !== fg) return false;
+    if (fg && fg !== '__uncertain__' && g.group !== fg) return false;
     if (fs && g.status !== fs) return false;
     return true;
   });
@@ -322,7 +316,7 @@ function renderTable() {
     {label: 'שם', key: 'name'},
     {label: '#', key: 'count', center: true},
     {label: 'ילדים', key: 'kids', center: true},
-    {label: 'הזמנה', key: 'invitation', center: true},
+    {label: 'לשלוח SMS', key: 'send_rsvp', center: true},
     {label: 'סטטוס', key: 'status'},
     {label: 'קבוצה', key: 'group'},
     {label: 'לינה', key: 'lodging', center: true},
@@ -432,7 +426,7 @@ function renderTable() {
       {editable: true, field: 'name', val: g.name + (g.uncertain ? ' ?' : ''), bold: true},
       {editable: true, field: 'count', val: String(g.count), center: true, numeric: true},
       {editable: true, field: 'kids', val: String(g.kids || 0), center: true, numeric: true},
-      {sel: makeBool(g.invitation, 'invitation'), center: true},
+      {checkbox: true, field: 'send_rsvp', checked: g.send_rsvp, center: true},
       {sel: makeStatus(g.status)},
       {sel: makeGroup(g.group)},
       {content: lodgingText, center: true, style: 'color:' + lodgingColor + ';font-weight:500;cursor:pointer', lodgingGuest: g, lodgingData: gLodging},
@@ -501,6 +495,17 @@ function renderTable() {
           };
         })(c.gid, c.gname);
         td.appendChild(delBtn);
+      }
+      if (c.checkbox !== undefined) {
+        var cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = !!c.checked;
+        cb.style.cssText = 'width:16px;height:16px;cursor:pointer;accent-color:var(--accent);';
+        cb.onchange = (function(id, field) { return function() {
+          updateGuest(id, field, this.checked);
+        }; })(g.id, c.field);
+        td.style.textAlign = 'center';
+        td.appendChild(cb);
       }
       if (c.rownum) {
         td.textContent = tbody.children.length + 1;
