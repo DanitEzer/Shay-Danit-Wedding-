@@ -239,6 +239,7 @@ function renderStats() {
   var total = guests.reduce(function(s, g) { return s + (g.count || 0); }, 0);
   var cp = coming.reduce(function(s, g) { return s + (g.count || 0); }, 0);
   var totalKids = guests.filter(function(g){return g.status==='מגיע';}).reduce(function(s,g) { return s + (parseInt(g.kids)||0); }, 0);
+  var smsCount = guests.filter(function(g){return g.send_rsvp;}).length;
 
   var items = [
     {num: guests.length + ' / ' + total, label: 'הזמנות / אנשים', color: '#D4581A', filter: null},
@@ -246,6 +247,7 @@ function renderStats() {
     {num: nc.length, label: 'לא מגיעים', color: '#C03020', filter: 'לא מגיע'},
     {num: unk.length, label: 'טרם נשאלו', color: '#8B6A4A', filter: 'טרם נשאל'},
     {num: totalKids, label: 'ילדים', color: '#6BB5D6', filter: null},
+    {num: smsCount, label: 'לשלוח SMS', color: '#8B5CF6', filter: '__sms__'},
   ];
 
   var s = document.getElementById('stats');
@@ -291,7 +293,8 @@ function getFiltered() {
   return guests.filter(function(g) {
     if (search && g.name.toLowerCase().indexOf(search) === -1) return false;
     if (fg === '__uncertain__' && !g.uncertain) return false;
-    if (fg && fg !== '__uncertain__' && g.group !== fg) return false;
+    if (fg === '__sms__' && !g.send_rsvp) return false;
+    if (fg && fg !== '__uncertain__' && fg !== '__sms__' && g.group !== fg) return false;
     if (fs && g.status !== fs) return false;
     return true;
   });
