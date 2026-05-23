@@ -734,6 +734,11 @@ function renderBudget() {
   var deposits = budgetItems.reduce(function(s,i){return s+(parseFloat(i.deposit)||0);},0);
   var paidTotal = budgetItems.filter(function(i){return i.paid;}).reduce(function(s,i){return s+(parseFloat(i.total_vat)||0);},0);
 
+  var comingPeople = guests.filter(function(g){return g.status==='מגיע';}).reduce(function(s,g){return s+(g.count||0);},0);
+  var GIFT_PER_PERSON = 550;
+  var expectedIncome = comingPeople * GIFT_PER_PERSON;
+  var gap = expectedIncome - total;
+
   var stats = document.getElementById('budget-stats');
   stats.innerHTML = '';
   [
@@ -741,9 +746,11 @@ function renderBudget() {
     [formatMoney(deposits), 'מקדמות שולמו', '#8B5CF6'],
     [formatMoney(paidTotal), 'שולם במלוא', 'var(--green)'],
     [formatMoney(total - deposits - paidTotal), 'יתרה לתשלום', (total - deposits - paidTotal) > 0 ? 'var(--red)' : 'var(--green)'],
+    [formatMoney(expectedIncome), 'צפי הכנסה (' + comingPeople + ' אנשים)', '#6BB5D6'],
+    [(gap >= 0 ? '+' : '') + formatMoney(gap), gap >= 0 ? 'עודף צפוי' : 'גירעון צפוי', gap >= 0 ? 'var(--green)' : 'var(--red)'],
   ].forEach(function(item) {
     var d = document.createElement('div'); d.className = 'stat'; d.style.borderColor = item[2];
-    d.innerHTML = '<span class="stat-num" style="color:'+item[2]+';font-size:1.2rem">'+item[0]+'</span><span class="stat-label">'+item[1]+'</span>';
+    d.innerHTML = '<span class="stat-num" style="color:'+item[2]+';font-size:1.1rem">'+item[0]+'</span><span class="stat-label">'+item[1]+'</span>';
     stats.appendChild(d);
   });
 
