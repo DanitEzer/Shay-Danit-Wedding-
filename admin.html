@@ -109,6 +109,7 @@ select.inline:focus{border-color:var(--accent)}
   <button class="tab active" id="tab-btn-guests" onclick="showTab('guests')">אישורי הגעה</button>
   <button class="tab" id="tab-btn-lodging" onclick="showTab('lodging')">לינה</button>
   <button class="tab" id="tab-btn-history" onclick="showTab('history')">היסטוריה</button>
+  <button class="tab" id="tab-btn-budget" onclick="showTab('budget')">תקציב</button>
   <button class="tab" id="tab-btn-rsvp" onclick="showTab('rsvp')">בקשות <span id="rsvp-badge" style="background:#C03020;color:#fff;border-radius:20px;padding:1px 7px;font-size:.65rem;display:none">0</span></button>
 </div>
 
@@ -134,6 +135,69 @@ select.inline:focus{border-color:var(--accent)}
 <div id="pane-lodging" style="display:none">
   <div class="stats" id="lstats"></div>
   <div class="table-wrap" id="ltable"><div class="loading">טוען...</div></div>
+</div>
+
+
+<div id="pane-budget" style="display:none">
+
+  <!-- Stats -->
+  <div class="stats" id="budget-stats"></div>
+
+  <!-- Add item button -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <button class="btn btn-green" onclick="openNewBudgetItem()" style="font-size:.65rem">+ הוסף סעיף</button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table id="budget-table">
+      <thead><tr>
+        <th>#</th>
+        <th>קטגוריה</th>
+        <th>ספק</th>
+        <th style="text-align:center">סכום כולל</th>
+        <th style="text-align:center">מקדמה</th>
+        <th style="text-align:center">יתרה</th>
+        <th style="text-align:center">שולם</th>
+        <th>הערות</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="budget-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- New Budget Item Modal -->
+<div id="budget-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:var(--bg);border:0.5px solid var(--border);border-radius:10px;padding:2rem;width:90%;max-width:420px;direction:rtl;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+      <h3 style="font-family:Righteous,cursive;color:var(--text);font-size:1.2rem">סעיף תקציב</h3>
+      <button onclick="closeBudgetModal()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text2)">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.8rem">
+      <div>
+        <label style="font-family:'Barlow Condensed',sans-serif;font-size:.6rem;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:3px">קטגוריה</label>
+        <input id="b-category" type="text" style="width:100%;padding:.6rem;border:0.5px solid var(--border);border-radius:6px;font-family:Rubik,sans-serif;font-size:.9rem;direction:rtl;background:var(--bg3);color:var(--text);outline:none">
+      </div>
+      <div>
+        <label style="font-family:'Barlow Condensed',sans-serif;font-size:.6rem;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:3px">ספק</label>
+        <input id="b-vendor" type="text" style="width:100%;padding:.6rem;border:0.5px solid var(--border);border-radius:6px;font-family:Rubik,sans-serif;font-size:.9rem;direction:rtl;background:var(--bg3);color:var(--text);outline:none">
+      </div>
+      <div>
+        <label style="font-family:'Barlow Condensed',sans-serif;font-size:.6rem;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:3px">סכום כולל מע"מ (₪)</label>
+        <input id="b-total" type="number" value="0" style="width:100%;padding:.6rem;border:0.5px solid var(--border);border-radius:6px;font-family:Rubik,sans-serif;font-size:.9rem;background:var(--bg3);color:var(--text);outline:none">
+      </div>
+      <div>
+        <label style="font-family:'Barlow Condensed',sans-serif;font-size:.6rem;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:3px">מקדמה ששולמה (₪)</label>
+        <input id="b-deposit" type="number" value="0" style="width:100%;padding:.6rem;border:0.5px solid var(--border);border-radius:6px;font-family:Rubik,sans-serif;font-size:.9rem;background:var(--bg3);color:var(--text);outline:none">
+      </div>
+      <div>
+        <label style="font-family:'Barlow Condensed',sans-serif;font-size:.6rem;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:3px">הערות</label>
+        <textarea id="b-notes" style="width:100%;padding:.6rem;border:0.5px solid var(--border);border-radius:6px;font-family:Rubik,sans-serif;font-size:.9rem;direction:rtl;background:var(--bg3);color:var(--text);outline:none;resize:vertical;min-height:60px"></textarea>
+      </div>
+      <button onclick="saveBudgetItem()" style="width:100%;padding:.8rem;background:#2c7a4b;border:none;border-radius:6px;font-family:Righteous,cursive;font-size:1rem;color:#fff;cursor:pointer">שמור</button>
+    </div>
+  </div>
 </div>
 
 <div id="pane-history" style="display:none">
@@ -629,6 +693,187 @@ async function loadHistory() {
   wrap.appendChild(table);
 }
 
+
+// ===== BUDGET =====
+var budgetItems = [];
+
+async function loadBudgetFromDB() {
+  var res = await sb.from('budget').select('*').order('id');
+  if (res.error) { console.error('Budget load error:', res.error); return; }
+  budgetItems = res.data || [];
+  renderBudget();
+}
+
+async function updateBudgetInDB(id, field, val) {
+  if (!isEditMode()) return;
+  var upd = {}; upd[field] = val;
+  var res = await sb.from('budget').update(upd).eq('id', parseInt(id));
+  if (res.error) { console.error('Budget update error:', res.error); return; }
+  var item = budgetItems.find(function(i){return i.id===id;});
+  if (item) item[field] = val;
+  showSaved();
+  renderBudget();
+}
+
+async function deleteBudgetFromDB(id) {
+  if (!isEditMode()) return;
+  await sb.from('budget').delete().eq('id', parseInt(id));
+  budgetItems = budgetItems.filter(function(i){return i.id!==id;});
+  renderBudget();
+  showSaved();
+}
+
+async function insertBudgetToDB(item) {
+  var res = await sb.from('budget').insert([item]);
+  if (res.error) { alert('שגיאה בשמירה'); return false; }
+  return true;
+}
+
+function renderBudget() {
+  var total = budgetItems.reduce(function(s,i){return s+(parseFloat(i.total_vat)||0);},0);
+  var deposits = budgetItems.reduce(function(s,i){return s+(parseFloat(i.deposit)||0);},0);
+  var paidTotal = budgetItems.filter(function(i){return i.paid;}).reduce(function(s,i){return s+(parseFloat(i.total_vat)||0);},0);
+
+  var stats = document.getElementById('budget-stats');
+  stats.innerHTML = '';
+  [
+    [formatMoney(total), 'סה"כ תקציב', 'var(--text)'],
+    [formatMoney(deposits), 'מקדמות שולמו', '#8B5CF6'],
+    [formatMoney(paidTotal), 'שולם במלוא', 'var(--green)'],
+    [formatMoney(total - deposits - paidTotal), 'יתרה לתשלום', (total - deposits - paidTotal) > 0 ? 'var(--red)' : 'var(--green)'],
+  ].forEach(function(item) {
+    var d = document.createElement('div'); d.className = 'stat'; d.style.borderColor = item[2];
+    d.innerHTML = '<span class="stat-num" style="color:'+item[2]+';font-size:1.2rem">'+item[0]+'</span><span class="stat-label">'+item[1]+'</span>';
+    stats.appendChild(d);
+  });
+
+  var tbody = document.getElementById('budget-tbody');
+  tbody.innerHTML = '';
+  budgetItems.forEach(function(item, idx) {
+    var remaining = (parseFloat(item.total_vat)||0) - (parseFloat(item.deposit)||0);
+    if (item.paid) remaining = 0;
+    var tr = document.createElement('tr');
+    if (item.paid) tr.style.opacity = '0.5';
+
+    var cells = [
+      {txt: idx+1, center: true, muted: true, small: true},
+      {editable: true, field: 'category', val: item.category || ''},
+      {editable: true, field: 'vendor', val: item.vendor || '', muted: true},
+      {editable: true, field: 'total_vat', val: parseFloat(item.total_vat)||0, numeric: true, center: true},
+      {editable: true, field: 'deposit', val: parseFloat(item.deposit)||0, numeric: true, center: true, color: '#8B5CF6'},
+      {txt: formatMoney(remaining), center: true, color: remaining > 0 ? 'var(--red)' : 'var(--green)'},
+      {checkbox: true, field: 'paid', checked: item.paid},
+      {editable: true, field: 'notes', val: item.notes || '', muted: true, small: true},
+      {del: true, id: item.id},
+    ];
+
+    cells.forEach(function(c) {
+      var td = document.createElement('td');
+      if (c.center) td.style.textAlign = 'center';
+      if (c.muted) td.style.color = 'var(--text3)';
+      if (c.small) td.style.fontSize = '.8rem';
+      if (c.color) td.style.color = c.color;
+
+      if (c.txt !== undefined) {
+        td.textContent = c.txt;
+      } else if (c.checkbox) {
+        var cb = document.createElement('input');
+        cb.type = 'checkbox'; cb.checked = !!c.checked;
+        cb.style.cssText = 'width:16px;height:16px;cursor:pointer;accent-color:var(--accent);';
+        (function(itemId, field) {
+          cb.onchange = function() { updateBudgetInDB(itemId, field, this.checked); };
+        })(item.id, c.field);
+        td.appendChild(cb);
+      } else if (c.del) {
+        var btn = document.createElement('button');
+        btn.className = 'btn del-btn'; btn.textContent = '×';
+        btn.style.cssText = 'padding:2px 7px;font-size:.7rem;border-color:#C03020;color:#C03020;';
+        (function(itemId) {
+          btn.onclick = function() {
+            if (!isEditMode()) return;
+            if (!confirm('למחוק סעיף?')) return;
+            deleteBudgetFromDB(itemId);
+          };
+        })(c.id);
+        td.appendChild(btn);
+      } else if (c.editable) {
+        var span = document.createElement('span');
+        var displayVal = c.numeric ? formatMoney(c.val) : (c.val || '—');
+        span.textContent = displayVal;
+        span.style.cssText = 'cursor:pointer;border-bottom:0.5px dashed var(--border);';
+        (function(itemId, field, span, td, numeric) {
+          span.onclick = function() {
+            if (!isEditMode()) return;
+            var input = document.createElement('input');
+            input.type = numeric ? 'number' : 'text';
+            var currentItem = budgetItems.find(function(i){return i.id===itemId;});
+            input.value = numeric ? (parseFloat((currentItem||{})[field])||0) : ((currentItem||{})[field]||'');
+            input.style.cssText = 'font-family:Rubik,sans-serif;font-size:.85rem;border:1px solid var(--accent);border-radius:4px;padding:2px 6px;width:'+(numeric?'90px':'130px')+';background:var(--bg3);color:var(--text);outline:none;';
+            td.replaceChild(input, span);
+            input.focus(); input.select();
+            var done = false;
+            function doSave() {
+              if (done) return; done = true;
+              var val = numeric ? (parseFloat(input.value)||0) : input.value.trim();
+              span.textContent = numeric ? formatMoney(val) : (val || '—');
+              if (input.parentNode === td) td.replaceChild(span, input);
+              updateBudgetInDB(itemId, field, val);
+            }
+            input.addEventListener('keydown', function(e) {
+              if (e.key==='Enter'){e.preventDefault();doSave();}
+              if (e.key==='Escape'){done=true;if(input.parentNode===td)td.replaceChild(span,input);}
+            });
+            input.addEventListener('blur', doSave);
+          };
+        })(item.id, c.field, span, td, c.numeric);
+        td.appendChild(span);
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+function formatMoney(n) {
+  return (Math.round(n||0)).toLocaleString('he-IL') + '₪';
+}
+
+function openNewBudgetItem() {
+  if (!isEditMode()) { alert('עברי למצב עריכה קודם'); return; }
+  document.getElementById('b-category').value = '';
+  document.getElementById('b-vendor').value = '';
+  document.getElementById('b-total').value = 0;
+  document.getElementById('b-deposit').value = 0;
+  document.getElementById('b-notes').value = '';
+  document.getElementById('budget-modal').style.display = 'flex';
+}
+
+function closeBudgetModal() {
+  document.getElementById('budget-modal').style.display = 'none';
+}
+
+async function saveBudgetItem() {
+  var cat = document.getElementById('b-category').value.trim();
+  if (!cat) { alert('נא למלא קטגוריה'); return; }
+  var maxId = budgetItems.reduce(function(m,i){return Math.max(m,i.id||0);},0);
+  var newItem = {
+    id: maxId + 1,
+    category: cat,
+    vendor: document.getElementById('b-vendor').value.trim(),
+    total_vat: parseFloat(document.getElementById('b-total').value)||0,
+    deposit: parseFloat(document.getElementById('b-deposit').value)||0,
+    paid: false,
+    notes: document.getElementById('b-notes').value.trim()
+  };
+  var ok = await insertBudgetToDB(newItem);
+  if (ok) {
+    budgetItems.push(newItem);
+    closeBudgetModal();
+    renderBudget();
+    showSaved();
+  }
+}
+
 async function loadRSVP() {
   var res = await sb.from('rsvp_requests').select('*').eq('approved', false).order('created_at', {ascending: true});
   var data = res.data || [];
@@ -708,7 +953,10 @@ function showTab(tab) {
   document.getElementById('pane-rsvp').style.display = tab === 'rsvp' ? 'block' : 'none';
   document.getElementById('tab-btn-history').classList.toggle('active', tab === 'history');
   document.getElementById('pane-history').style.display = tab === 'history' ? 'block' : 'none';
+  document.getElementById('tab-btn-budget').classList.toggle('active', tab === 'budget');
+  document.getElementById('pane-budget').style.display = tab === 'budget' ? 'block' : 'none';
   if (tab === 'history') loadHistory();
+  if (tab === 'budget') loadBudgetFromDB();
   if (tab === 'lodging') loadLodging();
   if (tab === 'rsvp') loadRSVP();
 }
