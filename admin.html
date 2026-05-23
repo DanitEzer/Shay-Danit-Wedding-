@@ -745,7 +745,7 @@ function renderBudget() {
     [formatMoney(total), 'סה"כ תקציב', 'var(--text)'],
     [formatMoney(deposits), 'מקדמות שולמו', '#8B5CF6'],
     [formatMoney(paidTotal), 'שולם במלוא', 'var(--green)'],
-    [formatMoney(total - deposits - paidTotal), 'יתרה לתשלום', (total - deposits - paidTotal) > 0 ? 'var(--red)' : 'var(--green)'],
+    [formatMoney(total - deposits - paidTotal - expectedIncome), 'יתרה לתשלום', (total - deposits - paidTotal - expectedIncome) > 0 ? 'var(--red)' : 'var(--green)'],
     [formatMoney(expectedIncome), 'צפי הכנסה (' + comingPeople + ' אנשים)', '#6BB5D6'],
     [(gap >= 0 ? '+' : '') + formatMoney(gap), gap >= 0 ? 'עודף צפוי' : 'גירעון צפוי', gap >= 0 ? 'var(--green)' : 'var(--red)'],
   ].forEach(function(item) {
