@@ -148,6 +148,15 @@ select.inline:focus{border-color:var(--accent)}
     <button class="btn btn-green" onclick="openNewBudgetItem()" style="font-size:.65rem">+ הוסף סעיף</button>
   </div>
 
+  <!-- Big Gifts -->
+  <div style="background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:1rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem">
+      <p style="font-family:Barlow Condensed,sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);margin:0">מתנות גדולות</p>
+      <button class="btn" onclick="addGift()" style="font-size:.6rem;padding:3px 10px">+ הוסף מתנה</button>
+    </div>
+    <div id="gifts-list" style="display:flex;flex-direction:column;gap:6px"></div>
+  </div>
+
   <!-- Table -->
   <div class="table-wrap">
     <table id="budget-table">
@@ -694,6 +703,62 @@ async function loadHistory() {
 }
 
 
+
+// ===== GIFTS =====
+window._bigGifts = [];
+
+async function loadGifts() {
+  var res = await sb.from('budget_gifts').select('*').order('id');
+  if (!res.error) {
+    window._bigGifts = res.data || [];
+    renderGifts();
+  }
+}
+
+function renderGifts() {
+  var list = document.getElementById('gifts-list');
+  if (!list) return;
+  list.innerHTML = '';
+  if (!window._bigGifts.length) {
+    list.innerHTML = '<p style="font-size:.8rem;color:var(--text3);margin:0">אין מתנות גדולות עדיין</p>';
+    return;
+  }
+  window._bigGifts.forEach(function(g) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;font-size:.85rem;';
+    row.innerHTML = '<span style="flex:1;color:var(--text)">'+g.name+'</span><span style="color:var(--green);font-weight:500">'+formatMoney(g.amount)+'</span><button class="btn del-btn" style="padding:2px 7px;font-size:.65rem;border-color:var(--red);color:var(--red)" onclick="deleteGift('+g.id+')">✕</button>';
+    list.appendChild(row);
+  });
+}
+
+async function addGift() {
+  if (!isEditMode()) { alert('עברי למצב עריכה קודם'); return; }
+  var name = prompt('שם הנותן (נגיד: הורי שי):');
+  if (!name) return;
+  var amount = prompt('סכום המתנה (₪):');
+  if (!amount) return;
+  amount = parseFloat(amount) || 0;
+  var maxId = (window._bigGifts.reduce(function(m,g){return Math.max(m,g.id||0);},0));
+  var newGift = {id: maxId+1, name: name.trim(), amount: amount};
+  var res = await sb.from('budget_gifts').insert([newGift]);
+  if (!res.error) {
+    window._bigGifts.push(newGift);
+    renderGifts();
+    renderBudget();
+    showSaved();
+  }
+}
+
+async function deleteGift(id) {
+  if (!isEditMode()) return;
+  if (!confirm('למחוק מתנה?')) return;
+  await sb.from('budget_gifts').delete().eq('id', parseInt(id));
+  window._bigGifts = window._bigGifts.filter(function(g){return g.id!==id;});
+  renderGifts();
+  renderBudget();
+  showSaved();
+}
+
 // ===== BUDGET =====
 var budgetItems = [];
 
@@ -701,6 +766,7 @@ async function loadBudgetFromDB() {
   var res = await sb.from('budget').select('*').order('id');
   if (res.error) { console.error('Budget load error:', res.error); return; }
   budgetItems = res.data || [];
+  await loadGifts();
   // Refresh guests data to get latest coming count
   if (!guests || guests.length === 0) {
     var gRes = await sb.from('guests').select('*').order('id');
@@ -746,33 +812,43 @@ function renderBudget() {
 
   var remaining = total - deposits;
 
-  var stats = document.getElementById('budget-stats');
-  stats.innerHTML = '';
+  var bigGifts = (window._bigGifts || []).reduce(function(s,g){return s+(parseFloat(g.amount)||0);},0);
+  var totalIncome = expectedIncome + bigGifts;
+  var finalGap = totalIncome - total;
 
-  // Row label helper
-  function makeLabel(txt) {
-    var lbl = document.createElement('div');
-    lbl.style.cssText = 'font-family:Barlow Condensed,sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);margin:1rem 0 .5rem;grid-column:1/-1;';
-    lbl.textContent = txt;
-    stats.appendChild(lbl);
+  var statsEl = document.getElementById('budget-stats');
+  statsEl.innerHTML = '';
+
+  function makeSection(title) {
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:.8rem;';
+    var lbl = document.createElement('p');
+    lbl.style.cssText = 'font-family:Barlow Condensed,sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);margin:0 0 .8rem;';
+    lbl.textContent = title;
+    wrap.appendChild(lbl);
+    var grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;';
+    wrap.appendChild(grid);
+    statsEl.appendChild(wrap);
+    return grid;
   }
 
-  function makeStat(num, label, color) {
-    var d = document.createElement('div'); d.className = 'stat'; d.style.borderColor = color;
-    d.innerHTML = '<span class="stat-num" style="color:'+color+';font-size:1.1rem">'+num+'</span><span class="stat-label">'+label+'</span>';
-    stats.appendChild(d);
+  function makeCard(grid, num, label, danger) {
+    var d = document.createElement('div');
+    d.style.cssText = 'background:var(--bg2);border-radius:8px;padding:.9rem 1rem;' + (danger ? 'border:0.5px solid var(--red);' : '');
+    d.innerHTML = '<span style="display:block;font-size:1.3rem;font-weight:600;color:'+(danger?'var(--red)':'var(--text)')+'">'+num+'</span><span style="font-size:.55rem;font-family:Barlow Condensed,sans-serif;letter-spacing:.15em;text-transform:uppercase;color:var(--text3)">'+label+'</span>';
+    grid.appendChild(d);
   }
 
-  // Expenses row
-  makeLabel('הוצאות');
-  makeStat(formatMoney(total), 'סה"כ תקציב', 'var(--text)');
-  makeStat(formatMoney(deposits), 'מקדמות שולמו', '#8B5CF6');
-  makeStat(formatMoney(remaining), 'יתרה לתשלום', remaining > 0 ? 'var(--red)' : 'var(--green)');
+  var expGrid = makeSection('הוצאות');
+  makeCard(expGrid, formatMoney(total), 'סה"כ תקציב', false);
+  makeCard(expGrid, formatMoney(deposits), 'מקדמות שולמו', false);
+  makeCard(expGrid, formatMoney(remaining), 'יתרה לתשלום', remaining > 0);
 
-  // Income row
-  makeLabel('הכנסות');
-  makeStat(formatMoney(expectedIncome), 'צפי הכנסה · ' + comingPeople + ' אנשים × 550₪', '#6BB5D6');
-  makeStat((gap >= 0 ? '+' : '') + formatMoney(gap), gap >= 0 ? 'עודף צפוי' : 'גירעון צפוי', gap >= 0 ? 'var(--green)' : 'var(--red)');
+  var incGrid = makeSection('הכנסות');
+  makeCard(incGrid, formatMoney(expectedIncome), comingPeople + ' אנשים × 550₪', false);
+  if (bigGifts > 0) makeCard(incGrid, formatMoney(bigGifts), 'מתנות גדולות', false);
+  makeCard(incGrid, (finalGap >= 0 ? '+' : '') + formatMoney(finalGap), finalGap >= 0 ? 'עודף צפוי' : 'גירעון צפוי', finalGap < 0);
 
   var tbody = document.getElementById('budget-tbody');
   tbody.innerHTML = '';
