@@ -263,13 +263,10 @@ function showSaved() {
   setTimeout(function() { m.style.opacity = '0'; }, 1500);
 }
 
-function isEditMode() {
-  return !document.body.classList.contains('edit-locked');
-}
-
 
 async function logAudit(guestId, guestName, field, oldValue, newValue, action) {
   var res = await sb.from('audit_log').insert([{
+    editor_name: currentUser.name || 'unknown',
     guest_id: guestId ? parseInt(guestId) : null,
     guest_name: guestName || '',
     field: field || '',
@@ -1059,7 +1056,7 @@ function showTab(tab) {
   document.getElementById('tab-btn-budget').classList.toggle('active', tab === 'budget');
   document.getElementById('pane-budget').style.display = tab === 'budget' ? 'block' : 'none';
   if (tab === 'history') loadHistory();
-  if (tab === 'budget') loadBudgetFromDB();
+  if (tab === 'budget') { if (!isAdmin()) { alert('גישה לתקציב לאדמין בלבד'); showTab('guests'); return; } loadBudgetFromDB(); }
   if (tab === 'lodging') loadLodging();
   if (tab === 'rsvp') loadRSVP();
 }
@@ -1151,41 +1148,73 @@ async function saveNewGuest() {
   showSaved();
 }
 
-var EDIT_PASSWORD = 'ניקניק';
+var EDITOR_PASSWORD = 'ניקניק';
+var ADMIN_PASSWORD = 'ניקניק פרוס';
+var currentUser = {role: 'viewer', name: ''};
 
 function initEditMode() {
-  var saved = localStorage.getItem('snd_edit_unlocked');
-  if (saved === '1') {
-    setEditMode(true);
-  } else {
-    setEditMode(false);
-  }
+  try {
+    var saved = localStorage.getItem('snd_user_v2');
+    if (saved) {
+      var u = JSON.parse(saved);
+      currentUser = u;
+      setUserMode(u.role, u.name);
+      return;
+    }
+  } catch(e) {}
+  setUserMode('viewer', '');
 }
 
-function setEditMode(unlocked) {
+function setUserMode(role, name) {
+  currentUser = {role: role, name: name};
   var btn = document.getElementById('lock-btn');
-  if (unlocked) {
+  var budgetTab = document.getElementById('tab-btn-budget');
+  if (role === 'admin') {
     document.body.classList.remove('edit-locked');
-    if (btn) { btn.textContent = '🔓 מצב עריכה'; btn.classList.add('unlocked'); }
+    if (btn) { btn.textContent = '👑 אדמין' + (name ? ' · ' + name : ''); btn.classList.add('unlocked'); }
+    if (budgetTab) budgetTab.style.display = '';
+  } else if (role === 'editor') {
+    document.body.classList.remove('edit-locked');
+    if (btn) { btn.textContent = '✏️ עורך' + (name ? ' · ' + name : ''); btn.classList.add('unlocked'); }
+    if (budgetTab) budgetTab.style.display = 'none';
   } else {
     document.body.classList.add('edit-locked');
     if (btn) { btn.textContent = '🔒 צפייה בלבד'; btn.classList.remove('unlocked'); }
+    if (budgetTab) budgetTab.style.display = 'none';
   }
 }
 
+function isEditMode() {
+  return currentUser.role === 'admin' || currentUser.role === 'editor';
+}
+
+function isAdmin() {
+  return currentUser.role === 'admin';
+}
+
 function toggleEdit() {
-  var isLocked = document.body.classList.contains('edit-locked');
-  if (isLocked) {
-    var pwd = prompt('סיסמה לעריכה:');
-    if (pwd === EDIT_PASSWORD) {
-      localStorage.setItem('snd_edit_unlocked', '1');
-      setEditMode(true);
-    } else if (pwd !== null) {
-      alert('סיסמה שגויה');
-    }
+  if (currentUser.role !== 'viewer') {
+    // Logout
+    localStorage.removeItem('snd_user_v2');
+    currentUser = {role: 'viewer', name: ''};
+    setUserMode('viewer', '');
+    return;
+  }
+  var pwd = prompt('סיסמה:');
+  if (!pwd) return;
+  if (pwd === ADMIN_PASSWORD) {
+    var name = prompt('שמך:') || 'אדמין';
+    currentUser = {role: 'admin', name: name};
+    localStorage.setItem('snd_user_v2', JSON.stringify(currentUser));
+    setUserMode('admin', name);
+  } else if (pwd === EDITOR_PASSWORD) {
+    var name = prompt('שמך (כדי שנדע מי ביצע שינויים):');
+    if (!name) { alert('נא להכניס שם'); return; }
+    currentUser = {role: 'editor', name: name};
+    localStorage.setItem('snd_user_v2', JSON.stringify(currentUser));
+    setUserMode('editor', name);
   } else {
-    localStorage.removeItem('snd_edit_unlocked');
-    setEditMode(false);
+    alert('סיסמה שגויה');
   }
 }
 
