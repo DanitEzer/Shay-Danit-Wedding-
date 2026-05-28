@@ -798,6 +798,10 @@ async function runSimulator() {
       (item[2] && item[1] > 0 ? '-' : '+') + formatMoney(item[1]) + '</span>';
     result.appendChild(el);
   });
+
+  // Update gap card in main stats
+  window._simulatorNet = d.net;
+  renderBudget();
 }
 
 async function loadBudgetFromDB() {
@@ -864,7 +868,8 @@ function renderBudget() {
   console.log('comingPeople:', comingPeople, 'extra:', extra, 'total:', totalWithExtra, 'extraCatering:', extraCatering);
   var totalIncome = expectedIncome + bigGifts + extraIncome;
   
-  var finalGap = totalIncome + deposits - total;
+  var simNet = window._simulatorNet || 0;
+  var finalGap = totalIncome + deposits - total + simNet;
 
   var statsEl = document.getElementById('budget-stats');
   statsEl.innerHTML = '';
