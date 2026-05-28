@@ -148,6 +148,20 @@ select.inline:focus{border-color:var(--accent)}
     <button class="btn btn-green" onclick="openNewBudgetItem()" style="font-size:.65rem">+ הוסף סעיף</button>
   </div>
 
+  <!-- Simulator -->
+  <div style="background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:1rem">
+    <p style="font-family:Barlow Condensed,sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);margin:0 0 .8rem">מחשבון אורחים נוספים</p>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px">
+        <label style="font-size:.8rem;color:var(--text2)">אורחים נוספים:</label>
+        <input type="number" id="extra-guests" value="0" min="0"
+          style="width:70px;padding:5px 8px;border:0.5px solid var(--border);border-radius:6px;font-family:Rubik,sans-serif;font-size:.9rem;background:var(--bg);color:var(--text);outline:none;text-align:center"
+          oninput="runSimulator()">
+      </div>
+      <div id="simulator-result" style="display:flex;gap:10px;flex-wrap:wrap;direction:rtl"></div>
+    </div>
+  </div>
+
   <!-- Big Gifts -->
   <div style="background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:1rem">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem">
@@ -760,6 +774,31 @@ async function deleteGift(id) {
 
 // ===== BUDGET =====
 var budgetItems = [];
+
+
+async function runSimulator() {
+  var extra = parseInt(document.getElementById('extra-guests').value) || 0;
+  var result = document.getElementById('simulator-result');
+  result.innerHTML = '';
+  if (extra === 0) return;
+
+  var res = await sb.rpc('calc_extra_guests', {extra_count: extra});
+  if (res.error) { console.error(res.error); return; }
+  var d = res.data;
+
+  [
+    ['עלות קייטרינג', d.catering_cost, true],
+    ['הכנסה צפויה', d.extra_income, false],
+    ['נטו', d.net, d.net < 0],
+  ].forEach(function(item) {
+    var el = document.createElement('div');
+    el.style.cssText = 'background:var(--bg2);border-radius:6px;padding:5px 12px;border:0.5px solid ' + (item[2] ? 'var(--red)' : 'var(--border)') + ';';
+    el.innerHTML = '<span style="font-size:.7rem;color:var(--text3);display:block">' + item[0] + '</span>' +
+      '<span style="font-size:.95rem;font-weight:500;color:' + (item[2] ? 'var(--red)' : 'var(--green)') + '">' +
+      (item[2] && item[1] > 0 ? '-' : '+') + formatMoney(item[1]) + '</span>';
+    result.appendChild(el);
+  });
+}
 
 async function loadBudgetFromDB() {
   var res = await sb.from('budget').select('*').order('id');
