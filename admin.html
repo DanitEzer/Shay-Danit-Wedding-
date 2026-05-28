@@ -148,6 +148,20 @@ select.inline:focus{border-color:var(--accent)}
     <button class="btn btn-green" onclick="openNewBudgetItem()" style="font-size:.65rem">+ הוסף סעיף</button>
   </div>
 
+  <!-- Simulator -->
+  <div style="background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:1rem">
+    <p style="font-family:Barlow Condensed,sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);margin:0 0 .8rem">מחשבון אורחים נוספים</p>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px">
+        <label style="font-size:.8rem;color:var(--text2)">אורחים נוספים:</label>
+        <input type="number" id="extra-guests" value="0" min="0" max="500"
+          style="width:70px;padding:5px 8px;border:0.5px solid var(--border);border-radius:6px;font-family:Rubik,sans-serif;font-size:.9rem;background:var(--bg);color:var(--text);outline:none;text-align:center"
+          oninput="updateSimulator()">
+      </div>
+      <div id="simulator-result" style="display:flex;gap:10px;flex-wrap:wrap"></div>
+    </div>
+  </div>
+
   <!-- Big Gifts -->
   <div style="background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:1rem">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem">
@@ -701,6 +715,38 @@ async function loadHistory() {
 
 
 
+
+function updateSimulator() {
+  var extra = parseInt(document.getElementById('extra-guests').value) || 0;
+  var FREE_EXTRA = 20; // first 20 are free
+  var CATERING_PER = 310;
+  var INCOME_PER = 550;
+
+  var cateringCost = extra > FREE_EXTRA ? (extra - FREE_EXTRA) * CATERING_PER : 0;
+  var extraIncome = extra * INCOME_PER;
+  var net = extraIncome - cateringCost;
+
+  var result = document.getElementById('simulator-result');
+  result.innerHTML = '';
+
+  function chip(label, val, danger) {
+    var d = document.createElement('div');
+    d.style.cssText = 'background:var(--bg2);border-radius:6px;padding:5px 10px;border:0.5px solid '+(danger&&val<0?'var(--red)':val>0?'var(--green)':'var(--border)')+';';
+    d.innerHTML = '<span style="font-size:.7rem;color:var(--text3);display:block">'+label+'</span><span style="font-size:.95rem;font-weight:500;color:'+(val<0?'var(--red)':val>0?'var(--green)':'var(--text)')+'">'+formatMoney(val)+'</span>';
+    result.appendChild(d);
+  }
+
+  if (extra > 0) {
+    chip('עלות קייטרינג', -cateringCost, true);
+    chip('הכנסה צפויה', extraIncome, false);
+    chip('נטו', net, true);
+  }
+
+  // Re-render budget with new extra guests factored in
+  window._extraGuests = extra;
+  renderBudget();
+}
+
 // ===== GIFTS =====
 window._bigGifts = [];
 
@@ -810,8 +856,15 @@ function renderBudget() {
   var remaining = total - deposits;
 
   var bigGifts = (window._bigGifts || []).reduce(function(s,g){return s+(parseFloat(g.amount)||0);},0);
-  var totalIncome = expectedIncome + bigGifts;
-  var finalGap = totalIncome + deposits - total;
+  var extra = window._extraGuests || 0;
+  var FREE_EXTRA = 20;
+  var CATERING_PER = 310;
+  var INCOME_PER = 550;
+  var extraCatering = extra > FREE_EXTRA ? (extra - FREE_EXTRA) * CATERING_PER : 0;
+  var extraIncome = extra * INCOME_PER;
+  var totalIncome = expectedIncome + bigGifts + extraIncome;
+  var totalExpenses = total + extraCatering;
+  var finalGap = totalIncome + deposits - totalExpenses;
 
   var statsEl = document.getElementById('budget-stats');
   statsEl.innerHTML = '';
@@ -838,12 +891,12 @@ function renderBudget() {
   }
 
   var expGrid = makeSection('הוצאות');
-  makeCard(expGrid, formatMoney(total), 'סה"כ תקציב', false);
+  makeCard(expGrid, formatMoney(totalExpenses), 'סה"כ תקציב' + (extra > 0 ? ' (+' + extra + ' אורחים)' : ''), false);
   makeCard(expGrid, formatMoney(deposits), 'מקדמות שולמו', false);
   makeCard(expGrid, formatMoney(remaining), 'יתרה לתשלום', remaining > 0);
 
   var incGrid = makeSection('הכנסות');
-  makeCard(incGrid, formatMoney(expectedIncome), comingPeople + ' אנשים × 550₪', false);
+  makeCard(incGrid, formatMoney(expectedIncome + extraIncome), (comingPeople + extra) + ' אנשים × 550₪', false);
   if (bigGifts > 0) makeCard(incGrid, formatMoney(bigGifts), 'מתנות גדולות', false);
   makeCard(incGrid, (finalGap >= 0 ? '+' : '') + formatMoney(finalGap), finalGap >= 0 ? 'עודף צפוי' : 'גירעון צפוי', finalGap < 0);
 
