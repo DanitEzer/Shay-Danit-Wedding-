@@ -852,7 +852,7 @@ function renderBudget() {
   }
 
   var expGrid = makeSection('הוצאות');
-  makeCard(expGrid, formatMoney(totalExpenses), 'סה"כ תקציב' + (extra > 0 ? ' (+' + extra + ' אורחים)' : ''), false);
+  makeCard(expGrid, formatMoney(total), 'סה"כ תקציב' + (extra > 0 ? ' (+' + extra + ' אורחים)' : ''), false);
   makeCard(expGrid, formatMoney(deposits), 'מקדמות שולמו', false);
   makeCard(expGrid, formatMoney(remaining), 'יתרה לתשלום', remaining > 0);
 
