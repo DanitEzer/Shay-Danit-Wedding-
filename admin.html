@@ -729,20 +729,20 @@ function updateSimulator() {
   var result = document.getElementById('simulator-result');
   result.innerHTML = '';
 
-  function chip(label, val, danger) {
+  function chip(label, val, isExpense) {
     var d = document.createElement('div');
-    d.style.cssText = 'background:var(--bg2);border-radius:6px;padding:5px 10px;border:0.5px solid '+(danger&&val<0?'var(--red)':val>0?'var(--green)':'var(--border)')+';';
-    d.innerHTML = '<span style="font-size:.7rem;color:var(--text3);display:block">'+label+'</span><span style="font-size:.95rem;font-weight:500;color:'+(val<0?'var(--red)':val>0?'var(--green)':'var(--text)')+'">'+formatMoney(val)+'</span>';
+    var color = isExpense && val > 0 ? 'var(--red)' : val > 0 ? 'var(--green)' : 'var(--text)';
+    d.style.cssText = 'background:var(--bg2);border-radius:6px;padding:5px 10px;border:0.5px solid '+(isExpense && val > 0 ? 'var(--red)' : 'var(--border)')+';';
+    d.innerHTML = '<span style="font-size:.7rem;color:var(--text3);display:block">'+label+'</span><span style="font-size:.95rem;font-weight:500;color:'+color+'">'+(isExpense && val > 0 ? '-' : '+')+formatMoney(val)+'</span>';
     result.appendChild(d);
   }
 
   if (extra > 0) {
-    chip('עלות קייטרינג', -cateringCost, true);
+    chip('עלות קייטרינג', extraCatering, true);
     chip('הכנסה צפויה', extraIncome, false);
-    chip('נטו', net, true);
+    chip('נטו', net, false);
   }
 
-  // Re-render budget with new extra guests factored in
   window._extraGuests = extra;
   renderBudget();
 }
@@ -863,6 +863,8 @@ function renderBudget() {
   var totalWithExtra = comingPeople + extra;
   var extraCatering = totalWithExtra > FREE_LIMIT ? (totalWithExtra - FREE_LIMIT) * CATERING_PER : 0;
   var extraIncome = extra * INCOME_PER;
+  // Debug
+  console.log('comingPeople:', comingPeople, 'extra:', extra, 'total:', totalWithExtra, 'extraCatering:', extraCatering);
   var totalIncome = expectedIncome + bigGifts + extraIncome;
   var totalExpenses = total + extraCatering;
   var finalGap = totalIncome + deposits - totalExpenses;
