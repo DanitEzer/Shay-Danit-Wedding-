@@ -811,6 +811,9 @@ function renderBudget() {
 
   var remaining = total - deposits;
 
+  var extra = 0;
+  var extraCatering = 0;
+  var extraIncome = 0;
   var bigGifts = (window._bigGifts || []).reduce(function(s,g){return s+(parseFloat(g.amount)||0);},0);
   var FREE_LIMIT = 320;
   var CATERING_PER = 310;
@@ -821,8 +824,8 @@ function renderBudget() {
   // Debug
   console.log('comingPeople:', comingPeople, 'extra:', extra, 'total:', totalWithExtra, 'extraCatering:', extraCatering);
   var totalIncome = expectedIncome + bigGifts + extraIncome;
-  var totalExpenses = total + extraCatering;
-  var finalGap = totalIncome + deposits - totalExpenses;
+  
+  var finalGap = totalIncome + deposits - total;
 
   var statsEl = document.getElementById('budget-stats');
   statsEl.innerHTML = '';
