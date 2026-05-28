@@ -811,7 +811,7 @@ function renderBudget() {
 
   var bigGifts = (window._bigGifts || []).reduce(function(s,g){return s+(parseFloat(g.amount)||0);},0);
   var totalIncome = expectedIncome + bigGifts;
-  var finalGap = totalIncome - total;
+  var finalGap = totalIncome + deposits - total;
 
   var statsEl = document.getElementById('budget-stats');
   statsEl.innerHTML = '';
