@@ -1462,36 +1462,6 @@ async function loadHistory() {
 
 
 
-function updateSimulator() {
-  var extra = parseInt(document.getElementById('extra-guests').value) || 0;
-  var FREE_EXTRA = 20; // first 20 are free
-  var CATERING_PER = 310;
-  var INCOME_PER = 550;
-
-  var cateringCost = extra > FREE_EXTRA ? (extra - FREE_EXTRA) * CATERING_PER : 0;
-  var extraIncome = extra * INCOME_PER;
-  var net = extraIncome - cateringCost;
-
-  var result = document.getElementById('simulator-result');
-  result.innerHTML = '';
-
-  function chip(label, val, isExpense) {
-    var d = document.createElement('div');
-    var color = isExpense && val > 0 ? 'var(--red)' : val > 0 ? 'var(--green)' : 'var(--text)';
-    d.style.cssText = 'background:var(--bg2);border-radius:6px;padding:5px 10px;border:0.5px solid '+(isExpense && val > 0 ? 'var(--red)' : 'var(--border)')+';';
-    d.innerHTML = '<span style="font-size:.7rem;color:var(--text3);display:block">'+label+'</span><span style="font-size:.95rem;font-weight:500;color:'+color+'">'+(isExpense && val > 0 ? '-' : '+')+formatMoney(val)+'</span>';
-    result.appendChild(d);
-  }
-
-  if (extra > 0) {
-    chip('עלות קייטרינג', extraCatering, true);
-    chip('הכנסה צפויה', extraIncome, false);
-    chip('נטו', net, false);
-  }
-
-  window._extraGuests = extra;
-  renderBudget();
-}
 
 // ===== GIFTS =====
 window._bigGifts = [];
