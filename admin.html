@@ -110,6 +110,7 @@ select.inline:focus{border-color:var(--accent)}
   <button class="tab" id="tab-btn-lodging" onclick="showTab('lodging')">לינה</button>
   <button class="tab" id="tab-btn-history" onclick="showTab('history')">היסטוריה</button>
   <button class="tab" id="tab-btn-budget" onclick="showTab('budget')">תקציב</button>
+  <button class="tab" id="tab-btn-tasks" onclick="showTab('tasks')">משימות</button>
   <button class="tab" id="tab-btn-rsvp" onclick="showTab('rsvp')">בקשות <span id="rsvp-badge" style="background:#C03020;color:#fff;border-radius:20px;padding:1px 7px;font-size:.65rem;display:none">0</span></button>
 </div>
 
@@ -221,6 +222,16 @@ select.inline:focus{border-color:var(--accent)}
       <button onclick="saveBudgetItem()" style="width:100%;padding:.8rem;background:#2c7a4b;border:none;border-radius:6px;font-family:Righteous,cursive;font-size:1rem;color:#fff;cursor:pointer">שמור</button>
     </div>
   </div>
+</div>
+
+
+<div id="pane-tasks" style="display:none">
+  <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+    <button class="btn" id="tasks-tab-weekly" onclick="switchTasksTab('weekly')" style="background:var(--bg2)">לוח שבועי</button>
+    <button class="btn" id="tasks-tab-day" onclick="switchTasksTab('day')">יום החתונה</button>
+  </div>
+  <div id="tasks-weekly"></div>
+  <div id="tasks-day" style="display:none"></div>
 </div>
 
 <div id="pane-history" style="display:none">
@@ -1032,6 +1043,184 @@ async function saveBudgetItem() {
   }
 }
 
+
+// ===== TASKS =====
+var tasksInited = false;
+
+function switchTasksTab(tab) {
+  document.getElementById('tasks-weekly').style.display = tab === 'weekly' ? 'block' : 'none';
+  document.getElementById('tasks-day').style.display = tab === 'day' ? 'block' : 'none';
+  document.getElementById('tasks-tab-weekly').style.background = tab === 'weekly' ? 'var(--accent)' : '';
+  document.getElementById('tasks-tab-weekly').style.color = tab === 'weekly' ? '#fff' : '';
+  document.getElementById('tasks-tab-day').style.background = tab === 'day' ? 'var(--accent)' : '';
+  document.getElementById('tasks-tab-day').style.color = tab === 'day' ? '#fff' : '';
+}
+
+function initTasksBoard() {
+  if (tasksInited) return;
+  tasksInited = true;
+  renderTasksBoard('snd_board_v2', 'tasks-weekly');
+  renderTasksBoard('snd_day_v1', 'tasks-day', true);
+  switchTasksTab('weekly');
+}
+
+function renderTasksBoard(storageKey, containerId, isDayBoard) {
+  var defaultData = isDayBoard ? getDayData() : getWeeklyData();
+  var data = JSON.parse(localStorage.getItem(storageKey) || 'null') || defaultData;
+  var container = document.getElementById(containerId);
+  container.innerHTML = '';
+
+  var dragSrc = null;
+
+  data.days.forEach(function(day, di) {
+    var card = document.createElement('div');
+    card.style.cssText = 'border:0.5px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden;';
+
+    var head = document.createElement('div');
+    head.style.cssText = 'padding:9px 14px;background:var(--bg2);display:flex;align-items:center;justify-content:space-between;';
+
+    var nameEl = document.createElement('span');
+    nameEl.style.cssText = 'font-size:13px;font-weight:500;color:var(--text);';
+    nameEl.textContent = day.name;
+
+    var addBtn = document.createElement('button');
+    addBtn.className = 'btn';
+    addBtn.style.cssText = 'font-size:.6rem;padding:2px 8px;';
+    addBtn.textContent = '+ הוסף';
+    addBtn.onclick = (function(day, storageKey, containerId, isDayBoard) { return function() {
+      var t = prompt('\u05de\u05e9\u05d9\u05de\u05d4 \u05d7\u05d3\u05e9\u05d4:');
+      if (t && t.trim()) {
+        day.tasks.push({t: t.trim(), tags: [], done: false});
+        localStorage.setItem(storageKey, JSON.stringify(data));
+        renderTasksBoard(storageKey, containerId, isDayBoard);
+      }
+    }; })(day, storageKey, containerId, isDayBoard);
+
+    head.appendChild(nameEl);
+    head.appendChild(addBtn);
+    card.appendChild(head);
+
+    day.tasks.forEach(function(task, ti) {
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:flex-start;gap:8px;padding:7px 14px;border-bottom:0.5px solid var(--border);cursor:grab;';
+      row.draggable = true;
+
+      row.ondragstart = function() { dragSrc = {di:di, ti:ti}; row.style.opacity = '0.4'; };
+      row.ondragend = function() { row.style.opacity = '1'; };
+      row.ondragover = function(e) { e.preventDefault(); row.style.borderTop = '2px solid var(--accent)'; };
+      row.ondragleave = function() { row.style.borderTop = ''; };
+      row.ondrop = function(e) {
+        e.preventDefault(); row.style.borderTop = '';
+        if (!dragSrc || (dragSrc.di === di && dragSrc.ti === ti)) return;
+        var moved = data.days[dragSrc.di].tasks.splice(dragSrc.ti, 1)[0];
+        data.days[di].tasks.splice(ti, 0, moved);
+        dragSrc = null;
+        localStorage.setItem(storageKey, JSON.stringify(data));
+        renderTasksBoard(storageKey, containerId, isDayBoard);
+      };
+
+      var cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.checked = task.done;
+      cb.style.cssText = 'width:15px;height:15px;margin-top:2px;flex-shrink:0;accent-color:var(--green);cursor:pointer;';
+      cb.onchange = (function(task) { return function() {
+        task.done = this.checked;
+        localStorage.setItem(storageKey, JSON.stringify(data));
+        renderTasksBoard(storageKey, containerId, isDayBoard);
+      }; })(task);
+
+      var textEl = document.createElement('div');
+      textEl.style.cssText = 'flex:1;font-size:12.5px;color:var(--text);line-height:1.4;' + (task.done ? 'text-decoration:line-through;color:var(--text3);' : '');
+      textEl.textContent = task.t;
+
+      var delBtn = document.createElement('button');
+      delBtn.style.cssText = 'background:none;border:none;cursor:pointer;color:var(--red);font-size:14px;padding:0 2px;opacity:0;transition:opacity .15s;';
+      delBtn.innerHTML = '\u00d7';
+      delBtn.title = '\u05de\u05d7\u05e7';
+      row.onmouseenter = function() { delBtn.style.opacity = '1'; };
+      row.onmouseleave = function() { delBtn.style.opacity = '0'; };
+      delBtn.onclick = (function(day, ti, storageKey, containerId, isDayBoard) { return function() {
+        day.tasks.splice(ti, 1);
+        localStorage.setItem(storageKey, JSON.stringify(data));
+        renderTasksBoard(storageKey, containerId, isDayBoard);
+      }; })(day, ti, storageKey, containerId, isDayBoard);
+
+      row.appendChild(cb);
+      row.appendChild(textEl);
+      row.appendChild(delBtn);
+      card.appendChild(row);
+    });
+
+    container.appendChild(card);
+  });
+}
+
+function getWeeklyData() {
+  return {days:[
+    {name:'\u05e9\u05d9\u05e9\u05d9 6.6', tasks:[
+      {t:'\u05dc\u05d4\u05d6\u05de\u05d9\u05df \u05e4\u05e8\u05d7\u05df \u2014 \u05dc\u05d0\u05d9\u05e1\u05d5\u05e3 \u05d1-19.6 \u05d1\u05d1\u05d5\u05e7\u05e8', tags:[], done:false},
+      {t:'\u05dc\u05d5\u05d5\u05d3\u05d0 \u05e9\u05d0\u05de\u05d6\u05d5\u05df \u05d4\u05d5\u05d6\u05de\u05df \u05d5\u05de\u05ea\u05d9 \u05de\u05d2\u05d9\u05e2', tags:[], done:false},
+      {t:'\u05dc\u05ea\u05d0\u05dd \u05e2\u05dd \u05d8\u05dc \u2014 \u05de\u05ea\u05d9 \u05de\u05db\u05d9\u05e0\u05d4 \u05de\u05d3\u05d5\u05d6\u05d5\u05ea \u05d5\u05de\u05d4 \u05e6\u05e8\u05d9\u05db\u05d4', tags:[], done:false},
+      {t:'\u05e7\u05e0\u05d9\u05d9\u05ea \u05d1\u05d3\u05d9\u05dd \u05dc\u05de\u05d3\u05d5\u05d6\u05d5\u05ea \u05d5\u05dc\u05e7\u05d9\u05e9\u05d5\u05d8 \u05db\u05e0\u05d9\u05e1\u05d4', tags:[], done:false},
+    ]},
+    {name:'\u05e9\u05d1\u05ea 7.6', tasks:[
+      {t:'\u05dc\u05d4\u05e2\u05d1\u05d9\u05e8 \u05dc\u05d8\u05dc \u05d1\u05d3\u05d9\u05dd \u05dc\u05d4\u05db\u05e0\u05ea \u05de\u05d3\u05d5\u05d6\u05d5\u05ea', tags:[], done:false},
+      {t:'\u05dc\u05e2\u05d1\u05d5\u05e8 \u05e2\u05dc \u05d4\u05d1\u05d9\u05ea \u2014 \u05dc\u05d0\u05e1\u05d5\u05e3 \u05d0\u05d2\u05e8\u05d8\u05dc\u05d9\u05dd, \u05e0\u05e8\u05d5\u05ea, \u05e7\u05d9\u05e9\u05d5\u05d8\u05d9\u05dd', tags:[], done:false},
+    ]},
+    {name:'\u05e8\u05d0\u05e9\u05d5\u05df 8.6', tasks:[
+      {t:'\u05e8\u05e9\u05d9\u05de\u05ea \u05e7\u05e0\u05d9\u05d5\u05ea \u05dc\u05d9\u05d5\u05dd \u05e9\u05e0\u05d9', tags:[], done:false},
+      {t:'\u05dc\u05ea\u05d0\u05dd \u05e2\u05dd \u05d3\u05d5\u05d3 \u05d5\u05d3\u05d5\u05d3\u05d4 \u2014 \u05dc\u05d5\u05d7 18-19.6', tags:[], done:false},
+    ]},
+    {name:'\u05e9\u05e0\u05d9-\u05e9\u05dc\u05d9\u05e9\u05d9 9-10.6', tasks:[
+      {t:'\u05e7\u05e0\u05d9\u05d9\u05ea \u05d0\u05d5\u05db\u05dc \u05dc\u05d9\u05d5\u05dd \u05e9\u05e0\u05d9 \u2014 \u05e4\u05d9\u05e8\u05d5\u05ea, \u05d2\u05d1\u05d9\u05e0\u05d5\u05ea, \u05dc\u05d7\u05de\u05d9\u05dd', tags:[], done:false},
+      {t:'\u05e7\u05e0\u05d9\u05d9\u05ea \u05d0\u05dc\u05db\u05d5\u05d4\u05d5\u05dc \u05dc\u05d9\u05d5\u05dd \u05e9\u05e0\u05d9', tags:[], done:false},
+    ]},
+    {name:'\u05e8\u05d1\u05d9\u05e2\u05d9 11.6', tasks:[
+      {t:'\u05dc\u05e9\u05dc\u05d5\u05d7 \u05d4\u05d5\u05d3\u05e2\u05d4 \u05dc\u05d3\u05d5\u05d3\u05d5\u05ea \u2014 \u05de\u05d4 \u05dc\u05d4\u05d1\u05d9\u05d0 \u05de\u05d4\u05d1\u05d9\u05ea', tags:[], done:false},
+    ]},
+    {name:'\u05d7\u05de\u05d9\u05e9\u05d9-\u05e9\u05d9\u05e9\u05d9 12-13.6', tasks:[
+      {t:'\u05dc\u05d5\u05d5\u05d3\u05d0 \u05e9\u05de\u05d3\u05d5\u05d6\u05d5\u05ea \u05e9\u05dc \u05d8\u05dc \u05d1\u05ea\u05d4\u05dc\u05d9\u05da', tags:[], done:false},
+      {t:'\u05dc\u05d5\u05d5\u05d3\u05d0 \u05e9\u05d0\u05de\u05d6\u05d5\u05df \u05d4\u05d2\u05d9\u05e2', tags:[], done:false},
+      {t:'\u05dc\u05d0\u05e1\u05d5\u05e3 \u05d0\u05d2\u05e8\u05d8\u05dc\u05d9\u05dd \u05de\u05d4\u05d7\u05d1\u05e8\u05d4', tags:[], done:false},
+    ]},
+    {name:'\u05e9\u05d1\u05ea-\u05e9\u05e0\u05d9 14-16.6', tasks:[
+      {t:'\u05dc\u05d0\u05e1\u05d5\u05e3 \u05de\u05d3\u05d5\u05d6\u05d5\u05ea \u05de\u05d5\u05d2\u05de\u05e8\u05d5\u05ea \u05de\u05d8\u05dc', tags:[], done:false},
+      {t:'\u05dc\u05d0\u05e8\u05d5\u05d6 \u05db\u05dc \u05d4\u05e6\u05d9\u05d5\u05d3 \u05de\u05d4\u05d1\u05d9\u05ea', tags:[], done:false},
+      {t:'\u05dc\u05ea\u05d0\u05dd \u05e8\u05db\u05d1 \u05d2\u05d3\u05d5\u05dc \u05dc\u05e8\u05d1\u05d9\u05e2\u05d9 18.6', tags:[], done:false},
+    ]},
+    {name:'\u05e8\u05d1\u05d9\u05e2\u05d9 18.6', tasks:[
+      {t:'\u05dc\u05d4\u05e2\u05de\u05d9\u05e1 \u05d4\u05db\u05dc \u05d5\u05dc\u05e0\u05e1\u05d5\u05e2 \u05dc\u05de\u05e7\u05d5\u05dd', tags:[], done:false},
+      {t:'\u05ea\u05dc\u05d9\u05d9\u05ea \u05db\u05d3\u05d5\u05e8\u05d9 \u05d3\u05d9\u05e1\u05e7\u05d5 \u05d5\u05de\u05d3\u05d5\u05d6\u05d5\u05ea', tags:[], done:false},
+      {t:'\u05e7\u05d9\u05e9\u05d5\u05d8\u05d9 \u05db\u05e0\u05d9\u05e1\u05d4 \u05d5\u05d1\u05d3\u05d9\u05dd', tags:[], done:false},
+      {t:'\u05d1\u05e1\u05d9\u05e1 \u05e9\u05d5\u05dc\u05d7\u05e0\u05d5\u05ea \u05dc\u05dc\u05d0 \u05e4\u05e8\u05d7\u05d9\u05dd', tags:[], done:false},
+      {t:'\u05dc\u05d4\u05e9\u05d0\u05d9\u05e8 \u05d0\u05d5\u05db\u05dc \u05d5\u05e9\u05ea\u05d9\u05d9\u05d4 \u05dc\u05d9\u05d5\u05dd \u05e9\u05e0\u05d9 \u05d1\u05de\u05e7\u05d5\u05dd', tags:[], done:false},
+    ]},
+  ]};
+}
+
+function getDayData() {
+  return {days:[
+    {name:'\u05e9\u05d9\u05e9\u05d9 19.6 \u2014 \u05d1\u05d5\u05e7\u05e8 (7:00\u201313:00)', tasks:[
+      {t:'\u05e7\u05d1\u05dc\u05ea \u05e4\u05e8\u05d7\u05d9\u05dd \u05de\u05d4\u05e4\u05e8\u05d7\u05df \u2014 \u05e4\u05d5\u05e2\u05dc', tags:[], done:false},
+      {t:'\u05e1\u05d9\u05d3\u05d5\u05e8 \u05e4\u05e8\u05d7\u05d9\u05dd \u05d1\u05d0\u05d2\u05e8\u05d8\u05dc\u05d9\u05dd \u2014 \u05e9\u05d5\u05dc\u05d7\u05e0\u05d5\u05ea + \u05d7\u05d5\u05e4\u05d4', tags:[], done:false},
+      {t:'\u05d2\u05de\u05e8 \u05e2\u05d9\u05e6\u05d5\u05d1 \u05d7\u05d5\u05e4\u05d4', tags:[], done:false},
+      {t:'\u05d2\u05de\u05e8 \u05e2\u05d9\u05e6\u05d5\u05d1 \u05e8\u05d7\u05d1\u05ea \u05e8\u05d9\u05e7\u05d5\u05d3\u05d9\u05dd', tags:[], done:false},
+      {t:'\u05e2\u05d9\u05e6\u05d5\u05d1 \u05e9\u05d9\u05e8\u05d5\u05ea\u05d9\u05dd \u05d5\u05de\u05e7\u05dc\u05d7\u05d5\u05ea \u2014 \u05e4\u05d5\u05e2\u05dc', tags:[], done:false},
+      {t:'\u05de\u05ea\u05e0\u05e4\u05d7\u05d9\u05dd \u05dc\u05d1\u05e8\u05d9\u05db\u05d4 \u2014 \u05e4\u05d5\u05e2\u05dc', tags:[], done:false},
+      {t:'\u05d1\u05d3\u05d9\u05e7\u05d4 \u05db\u05dc\u05dc\u05d9\u05ea \u05d5\u05ea\u05d9\u05e7\u05d5\u05e0\u05d9\u05dd', tags:[], done:false},
+    ]},
+    {name:'\u05e9\u05d9\u05e9\u05d9 19.6 \u2014 \u05de-13:00', tasks:[
+      {t:'\u05d3\u05e0\u05d9\u05ea \u2014 \u05d9\u05d5\u05e4\u05d9 \u05d5\u05d4\u05db\u05e0\u05d4. \u05dc\u05d0 \u05dc\u05d2\u05e2\u05ea \u05d1\u05e9\u05d5\u05dd \u05d3\u05d1\u05e8!', tags:[], done:false},
+      {t:'\u05e4\u05d5\u05e2\u05dc \u05d6\u05de\u05d9\u05df \u05dc\u05e9\u05d9\u05e0\u05d5\u05d9\u05d9\u05dd \u05d0\u05d7\u05e8\u05d5\u05e0\u05d9\u05dd', tags:[], done:false},
+    ]},
+    {name:'\u05e9\u05d1\u05ea 20.6 \u2014 \u05d9\u05d5\u05dd \u05e9\u05e0\u05d9', tasks:[
+      {t:'\u05d4\u05d2\u05e9\u05ea \u05d0\u05e8\u05d5\u05d7\u05ea \u05d1\u05d5\u05e7\u05e8 \u2014 \u05d4\u05db\u05dc \u05e7\u05e0\u05d5\u05d9 \u05de\u05e8\u05d0\u05e9', tags:[], done:false},
+      {t:'\u05e4\u05ea\u05d9\u05d7\u05ea \u05d1\u05e8\u05d9\u05db\u05d4 + \u05de\u05ea\u05e0\u05e4\u05d7\u05d9\u05dd', tags:[], done:false},
+      {t:'\u05d4\u05db\u05e0\u05ea \u05d1\u05e8 \u05dc\u05d9\u05d5\u05dd \u05e9\u05e0\u05d9', tags:[], done:false},
+      {t:'\u05e0\u05d9\u05e7\u05d5\u05d9 \u05d0\u05d5\u05d4\u05dc', tags:[], done:false},
+    ]},
+  ]};
+}
+
 async function loadRSVP() {
   var res = await sb.from('rsvp_requests').select('*').eq('approved', false).order('created_at', {ascending: true});
   var data = res.data || [];
@@ -1115,6 +1304,9 @@ function showTab(tab) {
   document.getElementById('pane-budget').style.display = tab === 'budget' ? 'block' : 'none';
   if (tab === 'history') loadHistory();
   if (tab === 'budget') { if (!isAdmin()) { alert('גישה לתקציב לאדמין בלבד'); showTab('guests'); return; } loadBudgetFromDB(); }
+  document.getElementById('tab-btn-tasks').classList.toggle('active', tab === 'tasks');
+  document.getElementById('pane-tasks').style.display = tab === 'tasks' ? 'block' : 'none';
+  if (tab === 'tasks') initTasksBoard();
   if (tab === 'lodging') loadLodging();
   if (tab === 'rsvp') loadRSVP();
 }
@@ -1152,7 +1344,7 @@ async function loadLodging() {
 }
 
 function exportCSV() {
-  var list = getFiltered();
+  var list = guests; // always export all
   var rows = list.map(function(g) {
     var phone = g.phone || '';
     if (phone && !phone.startsWith('0')) phone = '0' + phone;
