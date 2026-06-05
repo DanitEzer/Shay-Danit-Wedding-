@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S✦D FEST — עיצוב</title>
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Rubik:wght@300;400;500;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#faf8f5;--bg2:#f5f0ea;--bg3:#fff;--border:#e8e0d5;
+  --text:#2c1f14;--text2:#8a7060;--text3:#b09880;
+  --accent:#c8763a;--green:#1a5c33;--green-bg:#f0f8f2;
+  --red:#9c3820;
+}
+body{background:var(--bg);font-family:Rubik,sans-serif;direction:rtl;min-height:100vh}
+
+/* NAME MODAL */
+#name-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center}
+#name-modal-inner{background:var(--bg3);border:0.5px solid var(--border);border-radius:12px;padding:2rem;width:90%;max-width:360px;text-align:center}
+#name-modal h2{font-family:Righteous,cursive;font-size:1.4rem;color:var(--text);margin-bottom:.5rem}
+#name-modal p{font-size:.85rem;color:var(--text2);margin-bottom:1.2rem}
+#name-modal input{width:100%;padding:.7rem 1rem;border:0.5px solid var(--border);border-radius:6px;font-family:Rubik,sans-serif;font-size:1rem;direction:rtl;outline:none;margin-bottom:.8rem}
+#name-modal button{width:100%;padding:.8rem;background:var(--accent);border:none;border-radius:6px;font-family:Righteous,cursive;font-size:1rem;color:#fff;cursor:pointer}
+
+/* TOPBAR */
+.topbar{background:var(--bg2);border-bottom:0.5px solid var(--border);padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-family:Righteous,cursive;font-size:1.1rem;color:var(--text);letter-spacing:.08em}
+.logo span{color:var(--accent)}
+.user-badge{font-size:.7rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:.15em;color:var(--text2);background:var(--bg3);border:0.5px solid var(--border);padding:4px 10px;border-radius:20px;cursor:pointer}
+
+/* CONTENT */
+.container{max-width:760px;margin:0 auto;padding:1.5rem 1rem}
+
+/* CONCEPT BLOCK */
+.concept{background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem}
+.concept-title{font-family:'Barlow Condensed',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);margin-bottom:.6rem}
+.concept-text{font-size:13px;color:var(--text2);line-height:1.9}
+
+/* ZONE CARDS */
+.zone{border:0.5px solid var(--border);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.zone-head{padding:12px 14px;background:var(--bg2);cursor:pointer;user-select:none}
+.zone-top{display:flex;align-items:center;justify-content:space-between}
+.zone-left{display:flex;align-items:center;gap:10px}
+.zone-icon{font-size:20px}
+.zone-name{font-size:14px;font-weight:500;color:var(--text)}
+.zone-vibe{font-size:11px;color:var(--text3);font-style:italic;margin-top:2px}
+.zone-progress{font-size:11px;color:var(--text3)}
+.zone-desc{font-size:12.5px;color:var(--text2);line-height:1.7;margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border)}
+.progress-bar{height:3px;background:var(--border);border-radius:2px;margin-top:8px}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
+.zone-body{padding:8px 14px 12px}
+.task-row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--border)}
+.task-row:last-child{border-bottom:none}
+.task-row input[type=checkbox]{width:15px;height:15px;margin-top:2px;flex-shrink:0;accent-color:var(--green);cursor:pointer}
+.task-text{flex:1;font-size:12.5px;color:var(--text);line-height:1.4;cursor:pointer}
+.task-text:hover{text-decoration:underline;text-underline-offset:2px}
+.task-row.done .task-text{text-decoration:line-through;color:var(--text3)}
+.cat-tag{font-size:10px;padding:1px 7px;border-radius:4px;flex-shrink:0;margin-top:2px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.05em}
+.cat-do{background:#f0f8f2;color:var(--green);border:0.5px solid #c8e6d4}
+.cat-buy{background:#eff6ff;color:#1d4ed8;border:0.5px solid #bfdbfe}
+.cat-catering{background:#fffbeb;color:#92400e;border:0.5px solid #fde68a}
+.cat-decide{background:var(--bg2);color:var(--text3);border:0.5px solid var(--border)}
+
+/* SAVED MSG */
+.saved-msg{position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:.4rem 1.2rem;border-radius:20px;font-family:'Barlow Condensed',sans-serif;font-size:.65rem;letter-spacing:.15em;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+</style>
+</head>
+<body>
+
+<!-- Name Modal -->
+<div id="name-modal">
+  <div id="name-modal-inner">
+    <h2>S<span>✦</span>D FEST</h2>
+    <p>מה שמך? כל עדכון יירשם על שמך</p>
+    <input type="text" id="name-input" placeholder="שם..." autofocus>
+    <button onclick="enterSite()">כניסה</button>
+  </div>
+</div>
+
+<div class="saved-msg" id="saved-msg">✓ נשמר</div>
+
+<div class="topbar">
+  <div class="logo">S<span>✦</span>D FEST — עיצוב</div>
+  <div class="user-badge" id="user-badge" onclick="changeName()">👤 —</div>
+</div>
+
+<div class="container">
+  <!-- Concept -->
+  <div class="concept">
+    <div class="concept-title">קונספט כללי</div>
+    <div class="concept-text">
+      בוסתן זיתים פתוח בעמק יזרעאל — הסביבה היא חלק מהעיצוב. שפה חמה, אורגנית, גרובית עם נגיעות 70s. צמחייה עשירה, גוונים של חום וירוק ושמנת. כל אזור מתרגם את השפה אחרת לפי תפקידו — מכניסה ירוקה ומזמינה, דרך שוק אוכל חם ושופע, ועד רחבת דיסקו נוצצת ובוהקת.
+    </div>
+  </div>
+
+  <!-- Zones -->
+  <div id="zones"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var SB_URL = 'https://mvuachvkxkqwbpbzpczk.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12dWFjaHZreGtxd2JwYnpwY3prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDMwMzIsImV4cCI6MjA5MjIxOTAzMn0.FIOx0kVsjY7UzchC7OJDGVr3fUBjjVZ4pfwBA8JyCJU';
+var sb = supabase.createClient(SB_URL, SB_KEY);
+var currentUser = '';
+var designDone = JSON.parse(localStorage.getItem('snd_design_v1') || '{}');
+
+var catLabels = {do:'לעשות', buy:'לקנות', catering:'לקייטרינג', decide:'להחליט'};
+
+var zones = [
+  {icon:'🌿', name:'כניסה למקום', vibe:'מרגע זה מתחילה החתונה',
+   desc:'הגפן הטבעית ברקע, בד לבן מעליה, כדים וצמחים מהבית. ירוק, חם, מזמין.',
+   tasks:[
+    {t:'לתלות בד לבן על הגפן למעלה', cat:'do'},
+    {t:'להציב כד של אמיר (גדול, דומיננטי)', cat:'do'},
+    {t:'להוסיף כדים אישיים מהבית', cat:'do'},
+    {t:'עציצים ירוקים מהבית — ממורכזים בכניסה', cat:'do'},
+    {t:'לבדוק אם צריך אורות פיות על הגפן', cat:'decide'},
+  ]},
+  {icon:'🥂', name:'עמדת קבלת קהל', vibe:'חגיגי, מזמין',
+   desc:'חבית יין כמוקד מרכזי, שמפניירה מעליה. שטיח מתחם את האזור. צמחים ופרחים — פשוט ומדויק.',
+   tasks:[
+    {t:'לאשר חבית יין עם מקום האירוע', cat:'decide'},
+    {t:'שמפניירה או קישוט על החבית', cat:'buy'},
+    {t:'שטיח — יש בבית או לשאול?', cat:'decide'},
+    {t:'אגרטל גדול עם פרחים ליד החבית', cat:'do'},
+    {t:'צמחים ירוקים סביב העמדה', cat:'do'},
+  ]},
+  {icon:'🍽️', name:'איזור האוכל', vibe:'שוק מזרחי חם',
+   desc:'דוכני הקייטרינג מקבלים זהות — כיתוב, ירקות וצבעים. לימונים, בטטות, חצילים. אגרטלים בין הדוכנים. הכל מקורה בצל.',
+   tasks:[
+    {t:'לשלוח לקייטרינג: כיתוב לכל דוכן', cat:'catering'},
+    {t:'לשלוח לקייטרינג: לימונים לעמדת סלטים/דגים', cat:'catering'},
+    {t:'לשלוח לקייטרינג: בטטות וחצילים לקישוט', cat:'catering'},
+    {t:'לשלוח לקייטרינג: מלקחיים לקינוחים', cat:'catering'},
+    {t:'אגרטלים עם פרחים בין הדוכנים', cat:'do'},
+    {t:'להחליט: מדוזה מעל האזור — כן/לא', cat:'decide'},
+  ]},
+  {icon:'🪑', name:'איזור השולחנות', vibe:'גרובי, חם, שופע',
+   desc:'כדורים סינים ירוקים מרחפים ויוצרים תקרה חגיגית. על כל שולחן — בוצר ואגרטל קטן. עדיין לסגור: מפה, מפיות, צלחות, כוסות.',
+   tasks:[
+    {t:'לבחור צבע מפה', cat:'decide'},
+    {t:'לבחור צבע מפיות', cat:'decide'},
+    {t:'לבחור סוג צלחות', cat:'decide'},
+    {t:'לבחור סוג כוסות', cat:'decide'},
+    {t:'לוודא בוצר על כל שולחן', cat:'do'},
+    {t:'אגרטל קטן + פרחים על כל שולחן', cat:'do'},
+    {t:'כדורים סינים ירוקים — לרכוש/להזמין', cat:'buy'},
+    {t:'לתאם תליית כדורים סינים עם מקום', cat:'do'},
+  ]},
+  {icon:'🪩', name:'רחבת ריקודים', vibe:'דיסקו 70s — נוצץ ובוהק',
+   desc:'הויב משתנה לחלוטין. כדורי דיסקו, נצנצים על בורד הדיג\'יי, נבקשות כסף. כאן הנצנוץ הוא השפה — נוכח ומכוון.',
+   tasks:[
+    {t:'לוודא שנצנצים מאמזון הגיעו', cat:'buy'},
+    {t:'לתכנן תליית כדורי דיסקו — גובה ומיקום', cat:'decide'},
+    {t:'נבקשות כסף — לתלות מתי ואיך', cat:'decide'},
+    {t:'להחליט: פרחים סביב העמודים — כן/לא', cat:'decide'},
+    {t:'להחליט: מדוזות ברחבה — כן/לא', cat:'decide'},
+    {t:'בורד דיג\'יי — לקשט עם נצנצים', cat:'do'},
+  ]},
+  {icon:'🌿', name:'חופה', vibe:'טבעי, נקי, רגשי',
+   desc:'בין עצי הדקל. הסביבה עושה את העבודה. פרחים לבנים, ירוק טבעי, נקי ועדין. עדיין לסגור עם טל.',
+   tasks:[
+    {t:'לסיים תכנון עם טל', cat:'decide'},
+    {t:'אגרטלים גדולים עם פרחים לבנים', cat:'do'},
+    {t:'ירוק טבעי — ענפים ועלים', cat:'do'},
+    {t:'להחליט על מבנה החופה', cat:'decide'},
+  ]},
+  {icon:'🏊', name:'איזור הבריכה', vibe:'כיפי, צבעוני, קיצי',
+   desc:'המתנפחים הצבעוניים הם הקישוט. לנפח לפני שאורחים מגיעים. תאורה ורמקול לאחרי חצות.',
+   tasks:[
+    {t:'לנפח את כל המתנפחים לפני הערב', cat:'do'},
+    {t:'לזרוק ולתלות מתנפחים בבריכה', cat:'do'},
+    {t:'לוודא תאורה לאזור הבריכה בלילה', cat:'decide'},
+    {t:'שי — רמקול לבריכה בלילה', cat:'do'},
+  ]},
+];
+
+function showSaved(){
+  var m=document.getElementById('saved-msg');
+  m.style.opacity='1';
+  setTimeout(function(){m.style.opacity='0';},1500);
+}
+
+function logChange(action, field, oldVal, newVal) {
+  sb.from('audit_log').insert([{
+    guest_name: currentUser, field: field,
+    old_value: String(oldVal), new_value: String(newVal),
+    action: action, editor_name: currentUser, guest_id: null
+  }]);
+}
+
+function saveDesign(){
+  localStorage.setItem('snd_design_v1', JSON.stringify(designDone));
+}
+
+function enterSite(){
+  var name = document.getElementById('name-input').value.trim();
+  if(!name){alert('נא להכניס שם'); return;}
+  currentUser = name;
+  localStorage.setItem('snd_design_user', name);
+  document.getElementById('name-modal').style.display = 'none';
+  document.getElementById('user-badge').textContent = '👤 ' + name;
+  render();
+}
+
+function changeName(){
+  var name = prompt('שנה שם:', currentUser);
+  if(name && name.trim()){
+    currentUser = name.trim();
+    localStorage.setItem('snd_design_user', currentUser);
+    document.getElementById('user-badge').textContent = '👤 ' + currentUser;
+  }
+}
+
+document.getElementById('name-input').addEventListener('keydown', function(e){
+  if(e.key==='Enter') enterSite();
+});
+
+var collapsed = {};
+
+function render(){
+  var container = document.getElementById('zones');
+  container.innerHTML = '';
+
+  zones.forEach(function(zone, zi){
+    var doneCount = zone.tasks.filter(function(t,ti){return designDone[zi+'-'+ti];}).length;
+    var pct = Math.round(doneCount/zone.tasks.length*100);
+
+    var card = document.createElement('div');
+    card.className = 'zone';
+
+    var head = document.createElement('div');
+    head.className = 'zone-head';
+    head.innerHTML =
+      '<div class="zone-top">' +
+        '<div class="zone-left">' +
+          '<span class="zone-icon">' + zone.icon + '</span>' +
+          '<div>' +
+            '<div class="zone-name">' + zone.name + '</div>' +
+            '<div class="zone-vibe">' + zone.vibe + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<span class="zone-progress">' + doneCount + '/' + zone.tasks.length + '</span>' +
+      '</div>' +
+      '<div class="zone-desc">' + zone.desc + '</div>' +
+      '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>';
+
+    head.onclick = function(){
+      collapsed[zi] = !collapsed[zi];
+      body.style.display = collapsed[zi] ? 'none' : 'block';
+    };
+
+    var body = document.createElement('div');
+    body.className = 'zone-body';
+    if(collapsed[zi]) body.style.display = 'none';
+
+    zone.tasks.forEach(function(task, ti){
+      var key = zi+'-'+ti;
+      var row = document.createElement('div');
+      row.className = 'task-row' + (designDone[key] ? ' done' : '');
+
+      var cb = document.createElement('input');
+      cb.type='checkbox'; cb.checked=!!designDone[key];
+      cb.onchange = (function(k, t){return function(){
+        var prev = designDone[k];
+        designDone[k] = this.checked;
+        saveDesign();
+        logChange('design_task', t, prev?'done':'pending', this.checked?'done':'pending');
+        showSaved();
+        render();
+      };})(key, task.t);
+
+      var cat = document.createElement('span');
+      cat.className = 'cat-tag cat-' + task.cat;
+      cat.textContent = catLabels[task.cat];
+
+      var txt = document.createElement('div');
+      txt.className = 'task-text';
+      txt.textContent = task.t;
+      txt.title = 'לחץ לעריכה';
+      txt.onclick = (function(t, txtEl, k){return function(e){
+        e.stopPropagation();
+        var input = document.createElement('input');
+        input.type='text'; input.value=t.t;
+        input.style.cssText='width:100%;border:1px solid var(--accent);border-radius:4px;padding:2px 6px;font-family:Rubik,sans-serif;font-size:12.5px;outline:none;';
+        txtEl.replaceWith(input);
+        input.focus(); input.select();
+        var done2=false;
+        function doSave(){
+          if(done2)return; done2=true;
+          var val=input.value.trim();
+          if(val && val!==t.t){
+            logChange('design_task_edit', t.t, t.t, val);
+            t.t=val;
+            showSaved();
+          }
+          input.replaceWith(txtEl);
+          txtEl.textContent=t.t;
+        }
+        input.onblur=doSave;
+        input.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();doSave();}if(e.key==='Escape'){done2=true;input.replaceWith(txtEl);}};
+      };})(task, txt, key);
+
+      row.appendChild(cb);
+      row.appendChild(cat);
+      row.appendChild(txt);
+      body.appendChild(row);
+    });
+
+    card.appendChild(head);
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+}
+
+// Check if already have a name saved
+var savedName = localStorage.getItem('snd_design_user');
+if(savedName){
+  currentUser = savedName;
+  document.getElementById('name-modal').style.display = 'none';
+  document.getElementById('user-badge').textContent = '👤 ' + savedName;
+  render();
+}
+</script>
+</body>
+</html>
