@@ -1089,14 +1089,14 @@ async function initTasksBoard() {
 }
 
 async function loadTasks() {
-  var res = await sb.from('tasks').select('*').order('day_name').order('sort_order');
+  var res = await sb.from('tasks').select('*').order('day_order').order('sort_order');
   if (res.error) { console.error(res.error); return; }
   tasksData.weekly = res.data.filter(function(t){return t.board_type==='weekly';});
   tasksData.day = res.data.filter(function(t){return t.board_type==='day';});
 }
 
 async function reloadBoard(boardType) {
-  var res = await sb.from('tasks').select('*').eq('board_type', boardType).order('day_name').order('sort_order');
+  var res = await sb.from('tasks').select('*').eq('board_type', boardType).order('day_order').order('sort_order');
   if (!res.error) tasksData[boardType] = res.data;
   renderBoard(boardType);
 }
@@ -1177,8 +1177,39 @@ function renderBoard(boardType) {
 
 function createTaskRow(task, boardType) {
   var row = document.createElement('div');
-  row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:0.5px solid var(--border);';
+  row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:0.5px solid var(--border);cursor:grab;';
   row.dataset.id = task.id;
+  row.draggable = true;
+
+  row.ondragstart = function(e) {
+    e.dataTransfer.setData('taskId', task.id);
+    e.dataTransfer.setData('dayName', task.day_name);
+    e.dataTransfer.setData('boardType', boardType);
+    row.style.opacity = '0.4';
+  };
+  row.ondragend = function() { row.style.opacity = '1'; };
+  row.ondragover = function(e) { e.preventDefault(); row.style.borderTop = '2px solid var(--accent)'; };
+  row.ondragleave = function() { row.style.borderTop = ''; };
+  row.ondrop = async function(e) {
+    e.preventDefault(); row.style.borderTop = '';
+    var srcId = e.dataTransfer.getData('taskId');
+    if (!srcId || srcId === task.id) return;
+    // Move src task to drop position
+    var allTasks = tasksData[boardType];
+    var srcIdx = allTasks.findIndex(function(t){return t.id===srcId;});
+    var dstIdx = allTasks.findIndex(function(t){return t.id===task.id;});
+    if (srcIdx === -1 || dstIdx === -1) return;
+    var moved = allTasks.splice(srcIdx, 1)[0];
+    moved.day_name = task.day_name;
+    allTasks.splice(dstIdx, 0, moved);
+    // Update sort_order and day_name for all affected
+    var updates = allTasks.filter(function(t){return t.day_name===task.day_name;}).map(function(t,i){
+      return sb.from('tasks').update({sort_order:i+1, day_name:t.day_name, day_order:t.day_order}).eq('id',t.id);
+    });
+    await Promise.all(updates);
+    showSaved();
+    renderBoard(boardType);
+  };
 
   var cb = document.createElement('input');
   cb.type = 'checkbox'; cb.checked = task.done;
