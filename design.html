@@ -171,10 +171,52 @@ body{background:var(--bg);font-family:Rubik,sans-serif;direction:rtl;min-height:
 .urgent-head{padding:.7rem 1rem;background:var(--red-bg);border-bottom:0.5px solid var(--red-border)}
 .urgent-title{font-family:'Barlow Condensed',sans-serif;font-size:.7rem;letter-spacing:.18em;color:var(--red);text-transform:uppercase}
 
+/* BAGS */
+.bags-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.85rem}
+.bag-card{background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;overflow:hidden}
+.bag-card-head{padding:.8rem 1rem;background:var(--bg2);display:flex;align-items:center;gap:.6rem;border-bottom:0.5px solid var(--border)}
+.bag-number{font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.1em;background:var(--accent);color:#fff;border-radius:4px;padding:2px 7px;flex-shrink:0}
+.bag-icon{font-size:1.1rem;flex-shrink:0}
+.bag-name{font-size:.88rem;font-weight:500;color:var(--text);flex:1}
+.bag-status{font-family:'Barlow Condensed',sans-serif;font-size:.5rem;letter-spacing:.1em;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.bag-status.ready{background:var(--green-bg);color:var(--green);border:0.5px solid var(--green-border)}
+.bag-status.missing{background:var(--yellow-bg);color:var(--yellow);border:0.5px solid var(--yellow-border)}
+.bag-status.pending{background:var(--bg4);color:var(--text2);border:0.5px solid var(--border2)}
+.bag-body{padding:.7rem 1rem}
+.bag-section-label{font-family:'Barlow Condensed',sans-serif;font-size:.5rem;letter-spacing:.15em;color:var(--text3);text-transform:uppercase;margin-bottom:.4rem;margin-top:.6rem}
+.bag-section-label:first-child{margin-top:0}
+.bag-items{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:.3rem}
+.bag-item-tag{font-size:.72rem;padding:2px 8px;border-radius:4px;border:0.5px solid var(--border2);color:var(--text2);background:var(--bg2);display:flex;align-items:center;gap:4px;cursor:pointer}
+.bag-item-tag:hover .del-item{opacity:1}
+.del-item{font-size:.6rem;color:var(--text3);opacity:0;transition:opacity .15s;cursor:pointer}
+.del-item:hover{color:var(--red)}
+.add-item-row{display:flex;gap:.4rem;margin-top:.3rem}
+.add-item-input{flex:1;font-size:.75rem;font-family:Rubik,sans-serif;border:none;border-bottom:0.5px dashed var(--border2);background:transparent;outline:none;padding:.15rem 0;direction:rtl;color:var(--text)}
+.add-item-input:focus{border-bottom-color:var(--accent)}
+.add-item-input::placeholder{color:var(--text3)}
+.add-item-btn{font-family:'Barlow Condensed',sans-serif;font-size:.52rem;padding:2px 7px;border-radius:4px;border:0.5px solid var(--green-border);color:var(--green);background:var(--green-bg);cursor:pointer}
+.bag-task-row{display:flex;align-items:center;gap:.5rem;padding:3px 0;font-size:.75rem;color:var(--text2)}
+.bag-task-cb{width:12px;height:12px;accent-color:var(--green);flex-shrink:0;cursor:pointer}
+.bag-task-text{flex:1}
+.bag-task-text.done{text-decoration:line-through;color:var(--text3)}
+.del-bag-task{font-size:.6rem;color:var(--text3);opacity:0;border:none;background:none;cursor:pointer;padding:0 2px}
+.bag-task-row:hover .del-bag-task{opacity:1}
+.del-bag-task:hover{color:var(--red)}
+.bag-actions{display:flex;gap:.4rem;padding:.5rem 1rem .7rem;border-top:0.5px solid var(--border);margin-top:.4rem}
+.bag-act-btn{font-family:'Barlow Condensed',sans-serif;font-size:.52rem;letter-spacing:.08em;padding:3px 8px;border-radius:4px;border:0.5px solid var(--border2);color:var(--text2);background:none;cursor:pointer;transition:all .15s}
+.bag-act-btn:hover{border-color:var(--accent);color:var(--accent)}
+.bag-act-btn.del:hover{border-color:var(--red);color:var(--red)}
+.bag-status-sel{font-family:'Barlow Condensed',sans-serif;font-size:.52rem;border:0.5px solid var(--border);border-radius:4px;padding:2px 4px;background:var(--bg2);color:var(--text2);direction:rtl;outline:none;cursor:pointer;margin-right:auto}
+.add-bag-task-row{display:flex;gap:.4rem;margin-top:.4rem}
+.add-bag-task-input{flex:1;font-size:.75rem;font-family:Rubik,sans-serif;border:none;border-bottom:0.5px dashed var(--border2);background:transparent;outline:none;padding:.15rem 0;direction:rtl;color:var(--text)}
+.add-bag-task-input:focus{border-bottom-color:var(--accent)}
+.add-bag-task-input::placeholder{color:var(--text3)}
+
 @media(max-width:768px){
   .kanban{grid-template-columns:repeat(2,1fr)}
   .main{padding:.75rem 1rem}
   .cmd-strip,.owner-strip,.search-bar,.tabs{padding-left:1rem;padding-right:1rem}
+  .bags-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -205,10 +247,11 @@ body{background:var(--bg);font-family:Rubik,sans-serif;direction:rtl;min-height:
   <button class="tab active" data-view="zones" onclick="switchView(this)">לפי אזור</button>
   <button class="tab" data-view="kanban" onclick="switchView(this)">קנבן</button>
   <button class="tab" data-view="urgent" onclick="switchView(this)">🔥 בוער</button>
+  <button class="tab" data-view="bags" onclick="switchView(this)">🛍️ שקיות</button>
 </div>
 <div class="search-bar">
   <input class="search-input" id="search-input" placeholder="חיפוש..." oninput="render()">
-  <button class="add-zone-btn" onclick="addZone()">+ אזור חדש</button>
+  <button class="add-zone-btn" id="add-btn" onclick="addZone()">+ אזור חדש</button>
 </div>
 <div class="main" id="main-content"></div>
 
@@ -224,6 +267,7 @@ var collapsed={};
 var openNotes={};
 var WEDDING=new Date('2026-06-19T13:00:00');
 var zones=[];
+var bags=[];
 var dragTaskId=null;
 
 var OWNERS={'דנית':'#c8763a','שי':'#4a90c8','טל':'#8a60c8','קייטרינג':'#8a6010','המקום':'#1a5c33','אמזון':'#9c3820'};
@@ -243,7 +287,21 @@ async function loadFromDB(){
         .map(function(t){return {id:t.id,zone_id:t.zone_id,text:t.text,cat:t.cat,owner:t.owner||'',deadline:t.deadline||'',dep:t.dep||'',notes:t.notes||'',done:!!t.done,position:t.position};})
     };
   });
+  await loadBagsFromDB();
   render();
+}
+
+async function loadBagsFromDB(){
+  var {data:bData}=await sb.from('design_bags').select('*').order('number');
+  var {data:iData}=await sb.from('design_bag_items').select('*').order('position');
+  var {data:btData}=await sb.from('design_bag_tasks').select('*').order('position');
+  bags=(bData||[]).map(function(b){
+    return {
+      id:b.id,number:b.number,icon:b.icon||'🛍️',name:b.name,status:b.status||'pending',notes:b.notes||'',position:b.position,
+      items:(iData||[]).filter(function(i){return i.bag_id===b.id;}).map(function(i){return {id:i.id,text:i.text,position:i.position};}),
+      tasks:(btData||[]).filter(function(t){return t.bag_id===b.id;}).map(function(t){return {id:t.id,text:t.text,done:!!t.done,position:t.position};}),
+    };
+  });
 }
 
 async function dbUpdate(table,id,fields){await sb.from(table).update(fields).eq('id',id);}
@@ -296,7 +354,23 @@ function enterSite(){
 }
 document.getElementById('name-input').addEventListener('keydown',function(e){if(e.key==='Enter')enterSite();});
 function changeName(){var n=prompt('שנה שם:',currentUser);if(n&&n.trim()){currentUser=n.trim();localStorage.setItem('snd_design_user',currentUser);document.getElementById('user-badge').textContent='👤 '+currentUser;}}
-function switchView(btn){currentView=btn.dataset.view;document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});btn.classList.add('active');render();}
+function switchView(btn){
+  currentView=btn.dataset.view;
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  btn.classList.add('active');
+  var addBtn=document.getElementById('add-btn');
+  var searchBar=document.querySelector('.search-bar');
+  if(currentView==='bags'){
+    addBtn.textContent='+ שקית חדשה';
+    addBtn.onclick=addBag;
+    document.getElementById('search-input').placeholder='חיפוש שקית...';
+  } else {
+    addBtn.textContent='+ אזור חדש';
+    addBtn.onclick=addZone;
+    document.getElementById('search-input').placeholder='חיפוש...';
+  }
+  render();
+}
 function setOwner(chip,owner){ownerFilter=owner;document.querySelectorAll('.owner-chip').forEach(function(c){c.classList.remove('active');});chip.classList.add('active');render();}
 
 /* ---- STRIPS ---- */
@@ -580,10 +654,124 @@ async function addZone(){
   if(newZ){zones.push({id:newZ.id,icon:newZ.icon,name:newZ.name,vibe:newZ.vibe,description:newZ.description,position:zones.length,tasks:[]});showSaved();render();}
 }
 
+/* ---- BAGS RENDER ---- */
+function renderBags(){
+  var q=(document.getElementById('search-input').value||'').trim().toLowerCase();
+  var filtered=bags.filter(function(b){return !q||b.name.toLowerCase().indexOf(q)>=0||String(b.number).indexOf(q)>=0;});
+  if(!filtered.length){document.getElementById('main-content').innerHTML='<div style="padding:2rem;text-align:center;color:var(--text3);font-family:Barlow Condensed,sans-serif;letter-spacing:.15em">אין שקיות עדיין</div>';return;}
+  var statusLabels={ready:'מוכן להובלה',missing:'חסר משהו',pending:'ממתין להחלטה'};
+  var html='<div class="bags-grid">';
+  filtered.forEach(function(bag){
+    var doneT=bag.tasks.filter(function(t){return t.done;}).length;
+    html+='<div class="bag-card">';
+    html+='<div class="bag-card-head">';
+    html+='<span class="bag-number">#'+bag.number+'</span>';
+    html+='<span class="bag-icon">'+bag.icon+'</span>';
+    html+='<span class="bag-name">'+bag.name+'</span>';
+    html+='<span class="bag-status '+bag.status+'">'+statusLabels[bag.status]+'</span>';
+    html+='</div>';
+    html+='<div class="bag-body">';
+    // Items
+    html+='<div class="bag-section-label">תכולה</div>';
+    html+='<div class="bag-items" id="bitems-'+bag.id+'">';
+    bag.items.forEach(function(item){
+      html+='<span class="bag-item-tag" data-item-id="'+item.id+'">'+item.text+' <span class="del-item" onclick="delBagItem(\''+bag.id+'\',\''+item.id+'\')">✕</span></span>';
+    });
+    html+='</div>';
+    html+='<div class="add-item-row"><input class="add-item-input" id="new-item-'+bag.id+'" placeholder="+ הוסף פריט..." onkeydown="addBagItemKey(event,\''+bag.id+'\')"><button class="add-item-btn" onclick="addBagItem(\''+bag.id+'\')">הוסף</button></div>';
+    // Tasks
+    html+='<div class="bag-section-label" style="margin-top:.7rem">משימות ('+doneT+'/'+bag.tasks.length+')</div>';
+    bag.tasks.forEach(function(task){
+      html+='<div class="bag-task-row"><input type="checkbox" class="bag-task-cb"'+(task.done?' checked':'')+' onchange="toggleBagTask(\''+bag.id+'\',\''+task.id+'\',this)"><span class="bag-task-text'+(task.done?' done':'')+'">'+task.text+'</span><button class="del-bag-task" onclick="delBagTask(\''+bag.id+'\',\''+task.id+'\')">✕</button></div>';
+    });
+    html+='<div class="add-bag-task-row"><input class="add-bag-task-input" id="new-btask-'+bag.id+'" placeholder="+ הוסף משימה..." onkeydown="addBagTaskKey(event,\''+bag.id+'\')"></div>';
+    html+='</div>';
+    // Actions
+    html+='<div class="bag-actions">';
+    html+='<select class="bag-status-sel" onchange="updateBagStatus(\''+bag.id+'\',this.value)">';
+    Object.keys(statusLabels).forEach(function(s){html+='<option value="'+s+'"'+(bag.status===s?' selected':'')+'>'+statusLabels[s]+'</option>';});
+    html+='</select>';
+    html+='<button class="bag-act-btn" onclick="editBagName(\''+bag.id+'\')">✎ עריכה</button>';
+    html+='<button class="bag-act-btn del" onclick="deleteBag(\''+bag.id+'\')">מחיקה</button>';
+    html+='</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+  document.getElementById('main-content').innerHTML=html;
+}
+
+/* ---- BAGS CRUD ---- */
+async function addBag(){
+  var num=prompt('מספר שקית:');if(!num||isNaN(num))return;
+  var name=prompt('שם השקית:');if(!name||!name.trim())return;
+  var icon=prompt('אמוג\'י:','🛍️');
+  var {data}=await sb.from('design_bags').insert([{number:parseInt(num),icon:icon||'🛍️',name:name.trim(),status:'pending',notes:'',position:bags.length}]).select().single();
+  if(data){bags.push({id:data.id,number:data.number,icon:data.icon,name:data.name,status:'pending',notes:'',position:bags.length,items:[],tasks:[]});showSaved();renderBags();}
+}
+async function editBagName(bagId){
+  var bag=bags.find(function(b){return b.id===bagId;});if(!bag)return;
+  var num=prompt('מספר שקית:',bag.number);
+  var name=prompt('שם:',bag.name);if(!name||!name.trim())return;
+  var icon=prompt('אמוג\'י:',bag.icon);
+  bag.number=parseInt(num)||bag.number;bag.name=name.trim();bag.icon=icon||bag.icon;
+  await dbUpdate('design_bags',bagId,{number:bag.number,name:bag.name,icon:bag.icon});
+  showSaved();renderBags();
+}
+async function deleteBag(bagId){
+  if(!confirm('למחוק את השקית?'))return;
+  await dbDelete('design_bags',bagId);
+  bags=bags.filter(function(b){return b.id!==bagId;});
+  showSaved();renderBags();
+}
+async function updateBagStatus(bagId,status){
+  var bag=bags.find(function(b){return b.id===bagId;});if(!bag)return;
+  bag.status=status;
+  await dbUpdate('design_bags',bagId,{status:status});
+  showSaved();renderBags();
+}
+async function addBagItem(bagId){
+  var inp=document.getElementById('new-item-'+bagId);
+  var val=(inp?inp.value:'').trim();if(!val)return;
+  var bag=bags.find(function(b){return b.id===bagId;});if(!bag)return;
+  var {data}=await sb.from('design_bag_items').insert([{bag_id:bagId,text:val,position:bag.items.length}]).select().single();
+  if(data){bag.items.push({id:data.id,text:val,position:bag.items.length});showSaved();renderBags();
+    setTimeout(function(){var el=document.getElementById('new-item-'+bagId);if(el)el.focus();},80);}
+}
+function addBagItemKey(e,bagId){if(e.key==='Enter')addBagItem(bagId);}
+async function delBagItem(bagId,itemId){
+  await dbDelete('design_bag_items',itemId);
+  var bag=bags.find(function(b){return b.id===bagId;});
+  if(bag)bag.items=bag.items.filter(function(i){return i.id!==itemId;});
+  showSaved();renderBags();
+}
+async function addBagTask(bagId){
+  var inp=document.getElementById('new-btask-'+bagId);
+  var val=(inp?inp.value:'').trim();if(!val)return;
+  var bag=bags.find(function(b){return b.id===bagId;});if(!bag)return;
+  var {data}=await sb.from('design_bag_tasks').insert([{bag_id:bagId,text:val,done:false,position:bag.tasks.length}]).select().single();
+  if(data){bag.tasks.push({id:data.id,text:val,done:false,position:bag.tasks.length});showSaved();renderBags();
+    setTimeout(function(){var el=document.getElementById('new-btask-'+bagId);if(el)el.focus();},80);}
+}
+function addBagTaskKey(e,bagId){if(e.key==='Enter')addBagTask(bagId);}
+async function toggleBagTask(bagId,taskId,cb){
+  var bag=bags.find(function(b){return b.id===bagId;});if(!bag)return;
+  var task=bag.tasks.find(function(t){return t.id===taskId;});if(!task)return;
+  task.done=cb.checked;
+  await dbUpdate('design_bag_tasks',taskId,{done:cb.checked});
+  showSaved();renderBags();
+}
+async function delBagTask(bagId,taskId){
+  await dbDelete('design_bag_tasks',taskId);
+  var bag=bags.find(function(b){return b.id===bagId;});
+  if(bag)bag.tasks=bag.tasks.filter(function(t){return t.id!==taskId;});
+  showSaved();renderBags();
+}
+
 function render(){
   buildCmdStrip();
   if(currentView==='zones')renderZones();
   else if(currentView==='kanban')renderKanban();
+  else if(currentView==='bags')renderBags();
   else renderUrgent();
 }
 async function init(){
