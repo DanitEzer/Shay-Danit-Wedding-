@@ -113,6 +113,7 @@ select.inline:focus{border-color:var(--accent)}
   <button class="tab" id="tab-btn-history" onclick="showTab('history')">היסטוריה</button>
   <button class="tab" id="tab-btn-budget" onclick="showTab('budget')">תקציב</button>
   <button class="tab" id="tab-btn-tasks" onclick="showTab('tasks')">משימות</button>
+  <button class="tab" id="tab-btn-design" onclick="showTab('design')">עיצוב</button>
   <button class="tab" id="tab-btn-rsvp" onclick="showTab('rsvp')">בקשות <span id="rsvp-badge" style="background:#C03020;color:#fff;border-radius:20px;padding:1px 7px;font-size:.65rem;display:none">0</span></button>
 </div>
 
@@ -234,6 +235,11 @@ select.inline:focus{border-color:var(--accent)}
   </div>
   <div id="tasks-weekly"></div>
   <div id="tasks-day" style="display:none"></div>
+</div>
+
+
+<div id="pane-design" style="display:none">
+  <div id="design-zones"></div>
 </div>
 
 <div id="pane-history" style="display:none">
@@ -855,34 +861,25 @@ async function insertBudgetToDB(item) {
   return true;
 }
 
+function updateActualGifts(val) {
+  localStorage.setItem('snd_actual_gifts', val || '0');
+  renderBudget();
+}
+
 function renderBudget() {
   var total = budgetItems.reduce(function(s,i){return s+(parseFloat(i.total_vat)||0);},0);
   var deposits = budgetItems.reduce(function(s,i){return s+(parseFloat(i.deposit)||0);},0);
   var paidTotal = budgetItems.filter(function(i){return i.paid;}).reduce(function(s,i){return s+(parseFloat(i.total_vat)||0);},0);
 
+  // יתרה לתשלום = סה"כ פחות מקדמות פחות מה ששולם במלואו
+  var remaining = Math.max(0, total - deposits - paidTotal);
+
   var comingPeople = guests.filter(function(g){return g.status==='מגיע';}).reduce(function(s,g){return s+(g.count||0);},0);
-  var GIFT_PER_PERSON = 550;
-  var expectedIncome = comingPeople * GIFT_PER_PERSON;
-  var gap = expectedIncome - total;
-
-  var remaining = total - deposits;
-
-  var extra = 0;
-  var extraCatering = 0;
-  var extraIncome = 0;
+  var expectedIncome = comingPeople * 550;
   var bigGifts = (window._bigGifts || []).reduce(function(s,g){return s+(parseFloat(g.amount)||0);},0);
-  var FREE_LIMIT = 320;
-  var CATERING_PER = 310;
-  var INCOME_PER = 550;
-  var totalWithExtra = comingPeople + extra;
-  var extraCatering = totalWithExtra > FREE_LIMIT ? (totalWithExtra - FREE_LIMIT) * CATERING_PER : 0;
-  var extraIncome = extra * INCOME_PER;
-  // Debug
-  console.log('comingPeople:', comingPeople, 'extra:', extra, 'total:', totalWithExtra, 'extraCatering:', extraCatering);
-  var totalIncome = expectedIncome + bigGifts + extraIncome;
-  
-  var simNet = window._simulatorNet || 0;
-  var finalGap = totalIncome + deposits - total + simNet;
+  var actualGiftsIncome = parseFloat(localStorage.getItem('snd_actual_gifts') || '0') || 0;
+  var totalIncome = actualGiftsIncome + bigGifts;
+  var finalGap = totalIncome - remaining;
 
   var statsEl = document.getElementById('budget-stats');
   statsEl.innerHTML = '';
@@ -908,17 +905,55 @@ function renderBudget() {
     grid.appendChild(d);
   }
 
+  // הוצאות
   var expGrid = makeSection('הוצאות');
-  makeCard(expGrid, formatMoney(total), 'סה"כ תקציב' + (extra > 0 ? ' (+' + extra + ' אורחים)' : ''), false);
+  makeCard(expGrid, formatMoney(total), 'סה"כ תקציב', false);
   makeCard(expGrid, formatMoney(deposits), 'מקדמות שולמו', false);
+  makeCard(expGrid, formatMoney(paidTotal), 'שולם במלואו', false);
   makeCard(expGrid, formatMoney(remaining), 'יתרה לתשלום', remaining > 0);
 
-  var incGrid = makeSection('הכנסות');
-  makeCard(incGrid, formatMoney(expectedIncome + extraIncome), (comingPeople + extra) + ' אנשים × 550₪', false);
-  if (bigGifts > 0) makeCard(incGrid, formatMoney(bigGifts), 'מתנות גדולות', false);
-  makeCard(incGrid, (finalGap >= 0 ? '+' : '') + formatMoney(finalGap), finalGap >= 0 ? 'עודף צפוי' : 'גירעון צפוי', finalGap < 0);
+  // הכנסות
+  var incWrap = document.createElement('div');
+  incWrap.style.cssText = 'background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:.8rem;';
+  incWrap.innerHTML = '<p style="font-family:Barlow Condensed,sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);margin:0 0 .8rem">הכנסות</p>';
+  var incGrid = document.createElement('div');
+  incGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;';
+  incWrap.appendChild(incGrid);
+  statsEl.appendChild(incWrap);
 
-  var tbody = document.getElementById('budget-tbody');
+  // שדה הכנסות בפועל
+  var giftCard = document.createElement('div');
+  giftCard.style.cssText = 'background:var(--bg2);border-radius:8px;padding:.9rem 1rem;';
+  giftCard.innerHTML = '<span style="display:block;font-size:.55rem;font-family:Barlow Condensed,sans-serif;letter-spacing:.15em;text-transform:uppercase;color:var(--text3);margin-bottom:.5rem">מתנות אורחים בפועל ✎</span>'
+    +'<div style="display:flex;align-items:center;gap:6px">'
+    +'<input id="actual-gifts-input" type="number" value="'+actualGiftsIncome+'" min="0" step="100" '
+    +'style="width:100%;padding:4px 8px;border:0.5px solid var(--border);border-radius:5px;font-family:Rubik,sans-serif;font-size:1.1rem;font-weight:600;background:var(--bg);color:var(--text);outline:none;" '
+    +'oninput="updateActualGifts(this.value)">'
+    +'<span style="font-size:.85rem;color:var(--text3)">₪</span>'
+    +'</div>';
+  incGrid.appendChild(giftCard);
+
+  // צפי לפי אורחים
+  var expCard = document.createElement('div');
+  expCard.style.cssText = 'background:var(--bg2);border-radius:8px;padding:.9rem 1rem;';
+  expCard.innerHTML = '<span style="display:block;font-size:1.3rem;font-weight:600;color:var(--text3)">'+formatMoney(expectedIncome)+'</span><span style="font-size:.55rem;font-family:Barlow Condensed,sans-serif;letter-spacing:.15em;text-transform:uppercase;color:var(--text3)">צפי ('+comingPeople+' × 550₪)</span>';
+  incGrid.appendChild(expCard);
+
+  if (bigGifts > 0) {
+    var bgCard = document.createElement('div');
+    bgCard.style.cssText = 'background:var(--bg2);border-radius:8px;padding:.9rem 1rem;';
+    bgCard.innerHTML = '<span style="display:block;font-size:1.3rem;font-weight:600;color:var(--text)">'+formatMoney(bigGifts)+'</span><span style="font-size:.55rem;font-family:Barlow Condensed,sans-serif;letter-spacing:.15em;text-transform:uppercase;color:var(--text3)">מתנות גדולות</span>';
+    incGrid.appendChild(bgCard);
+  }
+
+  var gapColor = finalGap >= 0 ? '#1a5c33' : 'var(--red)';
+  var gapBorder = finalGap >= 0 ? 'border:0.5px solid #c8e6d4;' : 'border:0.5px solid var(--red);';
+  var gapCard = document.createElement('div');
+  gapCard.style.cssText = 'background:var(--bg2);border-radius:8px;padding:.9rem 1rem;'+gapBorder;
+  gapCard.innerHTML = '<span style="display:block;font-size:1.3rem;font-weight:600;color:'+gapColor+'">'+(finalGap>=0?'+':'')+formatMoney(finalGap)+'</span><span style="font-size:.55rem;font-family:Barlow Condensed,sans-serif;letter-spacing:.15em;text-transform:uppercase;color:var(--text3)">'+(finalGap>=0?'עודף':'גירעון')+'</span>';
+  incGrid.appendChild(gapCard);
+
+    var tbody = document.getElementById('budget-tbody');
   tbody.innerHTML = '';
   budgetItems.forEach(function(item, idx) {
     var remaining = (parseFloat(item.total_vat)||0) - (parseFloat(item.deposit)||0);
@@ -1045,6 +1080,147 @@ async function saveBudgetItem() {
   }
 }
 
+
+
+// ===== DESIGN =====
+var designDone = JSON.parse(localStorage.getItem('snd_design_v1') || '{}');
+
+var designZones = [
+  {icon:'🌿', title:'כניסה למקום', vibe:'מרגע זה מתחילה החתונה',
+   desc:'הגפן הטבעית ברקע, בד לבן מעליה, כדים וצמחים מהבית. ירוק, חם, מזמין.',
+   tasks:[
+    {t:'לתלות בד לבן על הגפן למעלה', cat:'do'},
+    {t:'להציב כד של אמיר (גדול, דומיננטי)', cat:'do'},
+    {t:'להוסיף כדים אישיים מהבית', cat:'do'},
+    {t:'עציצים ירוקים מהבית — ממורכזים בכניסה', cat:'do'},
+    {t:'לבדוק אם צריך אורות פיות על הגפן', cat:'decide'},
+  ]},
+  {icon:'🥂', title:'עמדת קבלת קהל', vibe:'חגיגי, מזמין', desc:'חבית יין כמוקד מרכזי, שמפניירה מעליה. שטיח מתחם את האזור. צמחים ופרחים — פשוט ומדויק.', tasks:[
+    {t:'לארגן חבית יין (לוודא עם מקום)', cat:'decide'},
+    {t:'שמפניירה/קישוט על החבית', cat:'buy'},
+    {t:'שטיח — לבדוק אם יש בבית או לשאול', cat:'decide'},
+    {t:'אגרטל גדול עם פרחים ליד החבית', cat:'do'},
+    {t:'צמחים ירוקים סביב העמדה', cat:'do'},
+  ]},
+  {icon:'🍽️', title:'איזור האוכל', vibe:'שוק מזרחי חם', desc:'דוכני הקייטרינג מקבלים זהות — כיתוב, ירקות וצבעים. לימונים, בטטות, חצילים. אגרטלים בין הדוכנים. הכל מקורה בצל.', tasks:[
+    {t:'לשלוח לקייטרינג: כיתוב לכל דוכן', cat:'catering'},
+    {t:'לשלוח לקייטרינג: לימונים בעמדת סלטים/דגים', cat:'catering'},
+    {t:'לשלוח לקייטרינג: בטטות וחצילים לקישוט', cat:'catering'},
+    {t:'לשלוח לקייטרינג: מלקחיים לקינוחים', cat:'catering'},
+    {t:'אגרטלים עם פרחים בין הדוכנים', cat:'do'},
+    {t:'להחליט: מדוזה מעל האיזור — כן/לא', cat:'decide'},
+  ]},
+  {icon:'🪑', title:'איזור השולחנות', vibe:'גרובי, חם, שופע', desc:'כדורים סינים ירוקים מרחפים ויוצרים תקרה חגיגית. על כל שולחן — בוצר ואגרטל קטן. עדיין לסגור: מפה, מפיות, צלחות, כוסות.', tasks:[
+    {t:'לבחור צבע מפה', cat:'decide'},
+    {t:'לבחור צבע מפיות', cat:'decide'},
+    {t:'לבחור סוג צלחות', cat:'decide'},
+    {t:'לבחור סוג כוסות', cat:'decide'},
+    {t:'לוודא בוצר על כל שולחן', cat:'do'},
+    {t:'אגרטל קטן + פרחים על כל שולחן', cat:'do'},
+    {t:'כדורים סינים ירוקים — לרכוש/להזמין', cat:'buy'},
+    {t:'לתאם תליית כדורים סינים עם מקום', cat:'do'},
+  ]},
+  {icon:'🪩', title:'רחבת ריקודים', vibe:'דיסקו 70s — נוצץ ובוהק', desc:'הויב משתנה לחלוטין. כדורי דיסקו, נצנצים על בורד הדיג\u0027יי, נבקשות כסף. כאן הנצנוץ הוא השפה — לא מינימלי, נוכח ומכוון.', tasks:[
+    {t:'לוודא שנצנצים מאמזון הגיעו', cat:'buy'},
+    {t:'לתכנן תליית כדורי דיסקו — גובה ומיקום', cat:'decide'},
+    {t:'נבקשות כסף — לתלות מתי ואיך', cat:'decide'},
+    {t:'להחליט: פרחים סביב העמודים — כן/לא', cat:'decide'},
+    {t:'להחליט: מדוזות ברחבה — כן/לא', cat:'decide'},
+    {t:'בורד דיג\'יי — לקשט עם נצנצים', cat:'do'},
+  ]},
+  {icon:'🌿', title:'חופה', vibe:'טבעי, נקי, רגשי', desc:'בין עצי הדקל. הסביבה עושה את העבודה. פרחים לבנים, ירוק טבעי, נקי ועדין. עדיין לסגור עם טל.', tasks:[
+    {t:'לסיים תכנון עם טל', cat:'decide'},
+    {t:'אגרטלים גדולים עם פרחים לבנים', cat:'do'},
+    {t:'ירוק טבעי — ענפים/עלים', cat:'do'},
+    {t:'להחליט על מבנה החופה', cat:'decide'},
+  ]},
+  {icon:'🏊', title:'איזור הבריכה', vibe:'כיפי, צבעוני, קיצי', desc:'המתנפחים הצבעוניים הם הקישוט. לנפח לפני שאורחים מגיעים. תאורה ורמקול לאחרי חצות.', tasks:[
+    {t:'לנפח את כל המתנפחים לפני הערב', cat:'do'},
+    {t:'לזרוק/לתלות מתנפחים בבריכה', cat:'do'},
+    {t:'לוודא תאורה לאיזור הבריכה בלילה', cat:'decide'},
+    {t:'שי — רמקול לבריכה בלילה', cat:'do'},
+  ]},
+];
+
+var catLabels = {buy:'לקנות', catering:'לקייטרינג', do:'לעשות', decide:'להחליט'};
+var catColors = {buy:'var(--color-text-info,#3B82F6)', catering:'#D97706', do:'var(--green)', decide:'var(--text3)'};
+
+function saveDesign(){localStorage.setItem('snd_design_v1', JSON.stringify(designDone));}
+
+function renderDesignBoard() {
+  var container = document.getElementById('design-zones');
+  container.innerHTML = '<div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px">' +
+    '<div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px">קונספט כללי</div>' +
+    '<div style="font-size:12.5px;color:var(--text2);line-height:1.8">'+
+    'בוסתן זיתים פתוח בעמק יזרעאל — הסביבה היא חלק מהעיצוב. '+
+    'שפה חמה, אורגנית, גרובית עם נגיעות 70s. '+
+    'צמחייה עשירה, גוונים של חום וירוק ושמנת. '+
+    'כל אזור מתרגם את השפה אחרת לפי תפקידו — '+
+    'מכניסה ירוקה, דרך שוק אוכל חם, ועד רחבת דיסקו נוצצת ובוהקת.' +
+    '</div></div>';
+  container.innerHTML = '';
+  designZones.forEach(function(zone, zi){
+    var doneCount = zone.tasks.filter(function(t,ti){return designDone[zi+'-'+ti];}).length;
+    var pct = Math.round(doneCount/zone.tasks.length*100);
+
+    var card = document.createElement('div');
+    card.style.cssText = 'border:0.5px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;';
+
+    // Header
+    var head = document.createElement('div');
+    head.style.cssText = 'padding:12px 14px;background:var(--bg2);cursor:pointer;';
+    head.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between">' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<span style="font-size:18px">' + zone.icon + '</span>' +
+        '<div>' +
+          '<div style="font-size:13px;font-weight:500;color:var(--text)">' + zone.title + '</div>' +
+          '<div style="font-size:11px;color:var(--text3);font-style:italic">' + zone.vibe + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<span style="font-size:11px;color:var(--text3)">' + doneCount + '/' + zone.tasks.length + '</span>' +
+    '</div>' +
+    (zone.desc ? '<div style="font-size:12px;color:var(--text2);line-height:1.6;margin-top:8px">' + zone.desc + '</div>' : '') +
+    '<div style="height:3px;background:var(--border);border-radius:2px;margin-top:8px"><div style="height:100%;background:var(--green);border-radius:2px;width:'+pct+'%;transition:width .3s"></div></div>';
+
+    var body = document.createElement('div');
+    body.style.cssText = 'padding:8px 14px 12px;';
+
+    zone.tasks.forEach(function(task, ti){
+      var key = zi+'-'+ti;
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);';
+
+      var cb = document.createElement('input');
+      cb.type='checkbox'; cb.checked=!!designDone[key];
+      cb.style.cssText='width:14px;height:14px;flex-shrink:0;accent-color:var(--green);cursor:pointer;';
+      cb.onchange=(function(k){return function(){designDone[k]=this.checked;saveDesign();renderDesignBoard();};})(key);
+
+      var catEl = document.createElement('span');
+      catEl.style.cssText='font-size:10px;padding:1px 6px;border-radius:4px;flex-shrink:0;background:var(--bg2);color:'+(catColors[task.cat]||'var(--text3)')+';border:0.5px solid var(--border);';
+      catEl.textContent = catLabels[task.cat]||task.cat;
+
+      var txt = document.createElement('span');
+      txt.style.cssText='font-size:12.5px;color:var(--text);flex:1;'+(designDone[key]?'text-decoration:line-through;color:var(--text3);':'');
+      txt.textContent = task.t;
+
+      row.appendChild(cb);
+      row.appendChild(catEl);
+      row.appendChild(txt);
+      body.appendChild(row);
+    });
+
+    // Toggle collapse
+    var collapsed = false;
+    head.onclick = function(){
+      collapsed = !collapsed;
+      body.style.display = collapsed ? 'none' : 'block';
+    };
+
+    card.appendChild(head);
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+}
 
 // ===== TASKS =====
 var tasksData = {weekly: [], day: []};
@@ -1396,6 +1572,9 @@ function showTab(tab) {
   document.getElementById('tab-btn-tasks').classList.toggle('active', tab === 'tasks');
   document.getElementById('pane-tasks').style.display = tab === 'tasks' ? 'block' : 'none';
   if (tab === 'tasks') { tasksInited=false; initTasksBoard(); }
+  document.getElementById('tab-btn-design').classList.toggle('active', tab === 'design');
+  document.getElementById('pane-design').style.display = tab === 'design' ? 'block' : 'none';
+  if (tab === 'design') renderDesignBoard();
   if (tab === 'lodging') loadLodging();
   if (tab === 'rsvp') loadRSVP();
 }
